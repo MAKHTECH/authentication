@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "makhkets.go.v1;ssov1";
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+}
+
+message AssignRoleRequest {
+  uint32 user_id = 1;
+  int32 app_id = 2;
+  Role role = 3;
+}
+
+message AssignRoleResponse {
+  bool success = 1;
+}

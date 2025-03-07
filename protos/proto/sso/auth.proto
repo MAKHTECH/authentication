@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "makhkets.go.v1;ssov1";
+
+message TokenPair {
+  string accessToken = 1;
+  string refreshToken = 2;
+}
+
+message Device {
+  string refresh_token = 1;
+  string user_id = 2;
+  string ua = 3;
+  string ip = 4;
+  string fingerprint = 5;
+  int64 expires_in = 6;
+  int64 created_at = 7;
+}
+
+
+message RegisterRequest {
+  string email = 1;
+  string username = 2;
+  string password = 3;
+  int32 app_id = 4;
+}
+
+message RegisterResponse {
+  TokenPair tokens = 1;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+  int32 app_id = 3;
+}
+
+message LoginResponse {
+  TokenPair tokens = 1;
+}
+
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+    TokenPair tokens = 1;
+}
+
+message LogoutRequest {
+  string access_token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+
+message GetDevicesRequest {
+  int32 user_id = 1;
+}
+
+message GetDevicesResponse {
+  repeated Device devices = 1;
+}
+

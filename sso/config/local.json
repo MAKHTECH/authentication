@@ -1,0 +1,19 @@
+{
+  "env": "local",
+  "app_id": 1,
+  "storage_path": "C:\\Users\\makhkets\\Desktop\\grpc-jwt-service\\sso\\storage\\sso.db",
+  "secret": "DLSAK0912JD<(_)@(0LXMCKJ319[P<X[Zk<(_)@(0-Y210",
+  "grpc": {
+    "port": 44044,
+    "timeout": 5
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "db": 0
+  },
+  "jwt": {
+    "access_token_expiration_minute": 5,
+    "refresh_token_expiration_minute": 44640
+  }
+}
