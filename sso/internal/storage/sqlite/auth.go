@@ -61,7 +61,7 @@ func (s *Storage) User(ctx context.Context, username string, appID int) (*models
 	row := stmt.QueryRowContext(ctx, appID, username)
 
 	var user models.User
-	var roleStr string // Временная переменная для хранения роли как строки
+	var roleStr sql.NullString // Используем sql.NullString для обработки NULL
 	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.PassHash, &roleStr)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -69,7 +69,13 @@ func (s *Storage) User(ctx context.Context, username string, appID int) (*models
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	user.Role = ssov1.Role(ssov1.Role_value[roleStr])
+
+	// Если roleStr содержит валидное значение, используем его, иначе устанавливаем роль по умолчанию
+	if roleStr.Valid {
+		user.Role = ssov1.Role(ssov1.Role_value[roleStr.String])
+	} else {
+		user.Role = ssov1.Role_USER // Роль по умолчанию
+	}
 
 	return &user, nil
 }

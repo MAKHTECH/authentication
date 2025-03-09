@@ -249,6 +249,8 @@ func (a *Auth) RefreshToken(ctx context.Context, refreshToken string) (*models.T
 	}
 
 	// Check Refresh Token
+	fmt.Println("refresh", refreshToken)
+	fmt.Println("rs.refresh", rs.RefreshToken)
 	if rs.RefreshToken != refreshToken {
 		return nil, InvalidRefreshToken
 	}

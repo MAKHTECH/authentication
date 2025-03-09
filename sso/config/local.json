@@ -2,7 +2,7 @@
   "env": "local",
   "app_id": 1,
   "storage_path": "C:\\Users\\makhkets\\Desktop\\grpc-jwt-service\\sso\\storage\\sso.db",
-  "secret": "DLSAK0912JD<(_)@(0LXMCKJ319[P<X[Zk<(_)@(0-Y210",
+  "secret": "X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=",
   "grpc": {
     "port": 44044,
     "timeout": 5

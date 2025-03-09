@@ -74,6 +74,7 @@ func (s *ServerAPI) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.
 			return nil, status.Error(codes.InvalidArgument, "Invalid App")
 		}
 
+		fmt.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -118,6 +119,7 @@ func (s *ServerAPI) Register(ctx context.Context, req *ssov1.RegisterRequest) (*
 		} else if errors.Is(err, auth.ErrInvalidApp) {
 			return nil, status.Error(codes.NotFound, "app not found")
 		}
+		fmt.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
