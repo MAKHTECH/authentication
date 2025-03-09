@@ -6,7 +6,7 @@ import (
 )
 
 type RClient struct {
-	client *redis.Client
+	Client *redis.Client
 }
 
 func InitRedis(db int, address, password string) *RClient {
@@ -22,5 +22,5 @@ func InitRedis(db int, address, password string) *RClient {
 		panic(err)
 	}
 
-	return &RClient{client: rdb}
+	return &RClient{Client: rdb}
 }

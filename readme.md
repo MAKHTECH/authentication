@@ -1,4 +1,4 @@
-11# 🔐 Auth Service (gRPC + JWT)
+11# 🔐 Auth Service (gRPC + PASETO)
 
 ![Go Version](https://img.shields.io/badge/go-1.21%2B-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -8,7 +8,7 @@
 
 🚀 **Auth Service** — это безопасный и масштабируемый сервис аутентификации на **gRPC**, основанный на **PASETO (TOKENS)** с защитой токенов и хранением сессий в **Redis**.
 
----
+----
 
 ## 🌟 Функционал API
 
@@ -18,6 +18,7 @@
 - 🔹 **RefreshToken** — обновление токена (долгосрочные сессии)
 - 🔹 **GetDevices** — просмотр всех активных сессий
 - 🔹 **Logout** — выход из системы (инвалидация токена)
+- 🔸 **Rate Limiter** — ограничение кол-во попыток запроса (блокировка по ip)
 
 ### 👥 **UserService**
 - 🔹 **AssignRole** — назначение роли пользователю (для админов)
@@ -25,6 +26,7 @@
 ### 🌐 **Metrics**
 - 🔹 **RequestDuration** — гистограмма времени выполнения хэндлера
 - 🔹 **ErrorCounter** — счетчик ошибок
+
 
 ---
 

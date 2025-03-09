@@ -22,7 +22,8 @@ func UserInterceptor(cfg *config.Config) grpc.UnaryServerInterceptor {
 
 		for _, skipMethod := range skipTokenMethods {
 			if strings.Contains(info.FullMethod, skipMethod) {
-				return handler(ctx, req)
+				resp, err = handler(ctx, req)
+				return resp, err
 			}
 		}
 
