@@ -16,6 +16,7 @@ import (
 	grpc_auth "sso/sso/internal/gprc/auth"
 	gprc_user "sso/sso/internal/gprc/user"
 	"sso/sso/internal/lib/logger/sl"
+	"sso/sso/internal/storage/ratelimiter"
 )
 
 type App struct {
@@ -40,7 +41,12 @@ func chainUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) grpc.Un
 	}
 }
 
-func New(log *slog.Logger, cfg *config.Config, auth grpc_auth.Auth, user gprc_user.UserManagement) *App {
+func New(
+	log *slog.Logger, cfg *config.Config,
+	auth grpc_auth.Auth, user gprc_user.UserManagement,
+	limiter *ratelimiter.RateLimiter,
+) *App {
+
 	// Создаём реестр метрик
 	grpcMetrics := grpc_prometheus.NewServerMetrics()
 
@@ -55,7 +61,7 @@ func New(log *slog.Logger, cfg *config.Config, auth grpc_auth.Auth, user gprc_us
 
 	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(chainUnaryInterceptors(
 		gprc_user.UserInterceptor(cfg),
-		grpc_auth.LoggingInterceptor,
+		grpc_auth.AuthInterceptor(limiter),
 		gprc_metrics.MetricsUnaryInterceptor,
 	)),
 		grpc.ChainUnaryInterceptor(

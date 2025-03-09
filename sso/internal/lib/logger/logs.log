@@ -2043,3 +2043,178 @@
 {"timestamp":"04:51:51.700","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
 {"timestamp":"04:51:51.702","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
 {"timestamp":"04:51:51.705","level":"INFO","message":"application stopped \n","data":{}}
+{"timestamp":"12:42:42.421","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:42:42.488","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:42:42.535","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:42:42.535","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:56:56.411","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:56:56.440","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:57:57.887","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:57:57.891","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:58:58.937","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:58:58.939","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:59:59.676","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:59:59.680","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:00:00.418","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:00:00.420","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:01:01.219","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:01:01.250","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:02:02.038","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:02:02.042","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:02:02.736","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:02:02.738","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:03:03.568","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:03:03.569","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:30:30.586","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:30:30.599","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:30:30.604","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:30:30.604","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:36:36.431","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:36:36.433","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:40:40.243","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:40:40.246","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:40:40.957","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:40:40.958","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:41:41.630","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:41:41.631","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:42:42.281","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:42:42.285","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:42:42.931","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:42:42.936","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:43:43.598","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:43:43.600","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:44:44.170","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:44:44.180","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:12:12.322","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:12:12.329","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:12:12.331","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:12:12.331","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:25:25.905","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:25:25.915","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:25:25.916","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:25:25.917","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:11:11.825","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:11:11.833","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:11:11.835","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:11:11.835","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:13:13.993","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:13:13.995","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:17:17.450","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:17:17.452","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:18:18.127","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:18:18.128","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:18:18.835","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:18:18.837","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:19:19.474","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:19:19.476","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:20:20.203","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:20:20.205","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:20:20.943","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"besnefisx","op":"auth.Login"}}
+{"timestamp":"12:20:20.947","level":"ERROR","message":"invalid credentials ","data":{"error":"invalid password"}}
+{"timestamp":"12:46:46.777","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:46:46.786","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:46:46.788","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:46:46.788","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:18:18.068","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:18:18.076","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:18:18.078","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:18:18.078","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:38:38.899","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
+{"timestamp":"12:38:38.899","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
+{"timestamp":"12:38:38.907","level":"INFO","message":"application stopped \n","data":{}}
+{"timestamp":"12:40:40.879","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:40:40.888","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:40:40.889","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:40:40.889","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:06:06.049","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
+{"timestamp":"12:06:06.050","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
+{"timestamp":"12:06:06.055","level":"INFO","message":"application stopped \n","data":{}}
+{"timestamp":"12:12:12.674","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:12:12.684","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:01:01.625","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:01:01.625","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:10:10.706","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
+{"timestamp":"12:10:10.707","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
+{"timestamp":"12:10:10.709","level":"INFO","message":"application stopped \n","data":{}}
+{"timestamp":"12:23:23.844","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:23:23.852","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:23:23.854","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:23:23.854","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:36:36.032","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
+{"timestamp":"12:36:36.032","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
+{"timestamp":"12:36:36.034","level":"INFO","message":"application stopped \n","data":{}}
+{"timestamp":"12:49:49.819","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:49:49.831","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:49:49.834","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:49:49.834","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:42:42.743","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
+{"timestamp":"12:42:42.743","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
+{"timestamp":"12:42:42.745","level":"INFO","message":"application stopped \n","data":{}}
+{"timestamp":"12:49:49.963","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:49:49.970","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:49:49.972","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:49:49.972","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:33:33.836","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
+{"timestamp":"12:33:33.836","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
+{"timestamp":"12:33:33.838","level":"INFO","message":"application stopped \n","data":{}}
+{"timestamp":"12:45:45.873","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"12:45:45.883","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"12:45:45.885","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"12:45:45.885","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"12:59:59.342","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:59:59.345","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:11:11.342","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:11:11.345","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:23:23.343","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:23:23.345","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:05:05.269","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:05:05.270","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:06:06.361","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:06:06.363","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:07:07.081","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:07:07.084","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:07:07.800","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:07:07.801","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:23:23.053","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:23:23.054","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:23:23.787","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:23:23.788","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:24:24.377","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:24:24.378","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"12:24:24.885","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"12:24:24.886","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:13:13.556","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"13:13:13.565","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"13:13:13.566","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"13:13:13.567","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"13:38:38.834","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"13:38:38.849","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"13:38:38.851","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"13:38:38.852","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"13:58:58.822","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:58:58.823","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:18:18.822","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:18:18.823","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:38:38.823","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:38:38.824","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:40:40.758","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:40:40.761","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:09:09.228","level":"INFO","message":"starting application ","data":{"config":{"app_id":1,"env":"local","grpc":{"port":44044,"timeout":5000000000},"jwt":{"access_token_expiration_minute":300000000000,"refresh_token_expiration_minute":2678400000000000},"redis":{"addr":"","db":0,"password":""},"secret":"X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=","storage_path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}}
+{"timestamp":"13:09:09.243","level":"INFO","message":"Initializing SQLite storage ","data":{"path":"C:\\Users\\makhkets\\Desktop\\authentication\\protos\\..\\sso\\storage\\sso.db"}}
+{"timestamp":"13:09:09.246","level":"INFO","message":"gRPC server is running ","data":{"addr":"[::]:44044"}}
+{"timestamp":"13:09:09.246","level":"DEBUG","message":"Prometheus метрики доступны на :9090/metrics \n","data":{}}
+{"timestamp":"13:11:11.383","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:11:11.385","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:31:31.467","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:31:31.524","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:51:51.383","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:51:51.385","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:11:11.384","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:11:11.384","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:31:31.383","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:31:31.385","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:51:51.384","level":"INFO","message":"attempting to login user ","data":{"app_id":1,"email":"fugiat","op":"auth.Login"}}
+{"timestamp":"13:51:51.386","level":"WARN","message":"user not found ","data":{"error":"storage.sqlite.User: user not found"}}
+{"timestamp":"13:11:11.244","level":"INFO","message":"stopping application ","data":{"signal":"interrupt"}}
+{"timestamp":"13:11:11.245","level":"INFO","message":"stopping gRPC server ","data":{"op":"grpcapp.Stop","port":44044}}
+{"timestamp":"13:11:11.246","level":"INFO","message":"application stopped \n","data":{}}
