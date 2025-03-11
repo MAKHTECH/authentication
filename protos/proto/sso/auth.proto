@@ -66,4 +66,3 @@ message GetDevicesRequest {
 message GetDevicesResponse {
   repeated Device devices = 1;
 }
-

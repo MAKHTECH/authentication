@@ -9,7 +9,7 @@ import (
 
 func (r *RClient) SaveRefreshSession(ctx context.Context, rs *models.RefreshSession, refreshTTL time.Duration) error {
 	key := "user:" + rs.UserId + ":" + rs.Fingerprint
-	response := r.client.HMSet(ctx, key, map[string]interface{}{
+	response := r.Client.HMSet(ctx, key, map[string]interface{}{
 		"refreshToken": rs.RefreshToken,
 		"userId":       rs.UserId,
 		"ua":           rs.Ua,
@@ -23,7 +23,7 @@ func (r *RClient) SaveRefreshSession(ctx context.Context, rs *models.RefreshSess
 	}
 
 	// Установка TTL для ключа в Redis
-	if err := r.client.Expire(ctx, key, refreshTTL).Err(); err != nil {
+	if err := r.Client.Expire(ctx, key, refreshTTL).Err(); err != nil {
 		return err
 	}
 
@@ -32,7 +32,7 @@ func (r *RClient) SaveRefreshSession(ctx context.Context, rs *models.RefreshSess
 
 func (r *RClient) GetRefreshSession(ctx context.Context, fingerprint string) (*models.RefreshSession, error) {
 	keyPattern := "user:*:" + fingerprint
-	keys, err := r.client.Keys(ctx, keyPattern).Result()
+	keys, err := r.Client.Keys(ctx, keyPattern).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *RClient) GetRefreshSession(ctx context.Context, fingerprint string) (*m
 	}
 
 	key := keys[0]
-	result, err := r.client.HGetAll(ctx, key).Result()
+	result, err := r.Client.HGetAll(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (r *RClient) GetRefreshSessionsByUserId(ctx context.Context, userID string)
 	keyPattern := fmt.Sprintf("user:%s:*", userID)
 
 	// Получаем все ключи, соответствующие паттерну
-	keys, err := r.client.Keys(ctx, keyPattern).Result()
+	keys, err := r.Client.Keys(ctx, keyPattern).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get keys for user %s: %w", userID, err)
 	}
@@ -103,7 +103,7 @@ func (r *RClient) GetRefreshSessionsByUserId(ctx context.Context, userID string)
 
 func (r *RClient) DeleteRefreshSession(ctx context.Context, fingerprint, id string) error {
 	key := "user:" + id + ":" + fingerprint
-	if err := r.client.Del(ctx, key).Err(); err != nil {
+	if err := r.Client.Del(ctx, key).Err(); err != nil {
 		return err
 	}
 
@@ -113,7 +113,7 @@ func (r *RClient) DeleteRefreshSession(ctx context.Context, fingerprint, id stri
 // getRefreshSessionFromKey извлекает данные сессии по конкретному ключу
 func (r *RClient) getRefreshSessionFromKey(ctx context.Context, key string) (*models.RefreshSession, error) {
 	// Получаем все поля хэша по ключу
-	result, err := r.client.HGetAll(ctx, key).Result()
+	result, err := r.Client.HGetAll(ctx, key).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get hash data for key %s: %w", key, err)
 	}

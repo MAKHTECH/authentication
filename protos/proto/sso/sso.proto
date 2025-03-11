@@ -16,11 +16,11 @@ service Auth {
   // Вход в систему
   rpc Login (LoginRequest) returns (LoginResponse);
 
+
   // Обновление токена (для долгосрочных сессий)
   rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
 
   // Выявление всех авторизованных устройств на аккаунт
-  // todo check permissions
   rpc GetDevices (GetDevicesRequest) returns (GetDevicesResponse);
 
   // Выход из системы (инвалидация токена)

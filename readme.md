@@ -65,7 +65,7 @@
 
 ### Возможно будут добавлены
 - 🔄 Добавить OAuth2 (google)
-- 🔄 Добавить 2FA (authy
+- 🔄 Добавить 2FA (authy)
 ___
 
 
@@ -138,12 +138,12 @@ sso/
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
-                                     id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                                     email      VARCHAR(50) NOT NULL UNIQUE,
-                                     pass_hash  VARCHAR(100) NOT NULL,
-                                     username   VARCHAR(15) UNIQUE,
-                                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    email      VARCHAR(50) NOT NULL UNIQUE,
+    pass_hash  VARCHAR(100) NOT NULL,
+    username   VARCHAR(15) UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Триггер для обновления updated_at при изменении записи
