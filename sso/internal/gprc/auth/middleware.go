@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"sso/sso/internal/storage/ratelimiter"
+	"sso/sso/internal/lib/ratelimiter"
 	"sso/sso/pkg/utils"
 	"strings"
 )

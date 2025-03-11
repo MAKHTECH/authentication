@@ -20,9 +20,6 @@ type User struct {
 }
 
 var (
-	NoRightsErr       = errors.New("you do not have admin rights to perform this action")
-	UserNotFoundErr   = errors.New("user not found")
-	InternalErr       = errors.New("internal error")
 	ErrUserRoleExists = errors.New("user role already exists or (user, app) not found")
 )
 

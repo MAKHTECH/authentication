@@ -3,26 +3,22 @@ package grpcapp
 import (
 	"context"
 	"fmt"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log/slog"
 	"net"
-	"net/http"
 	"sso/sso/internal/config"
 	gprc_metrics "sso/sso/internal/gprc"
 	grpc_auth "sso/sso/internal/gprc/auth"
 	gprc_user "sso/sso/internal/gprc/user"
-	"sso/sso/internal/lib/logger/sl"
-	"sso/sso/internal/storage/ratelimiter"
+	"sso/sso/internal/lib/kafka"
+	"sso/sso/internal/lib/ratelimiter"
 )
 
 type App struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
-	registry   *prometheus.Registry
+	producer   *kafka.Producer
 	port       int
 }
 
@@ -45,38 +41,17 @@ func New(
 	log *slog.Logger, cfg *config.Config,
 	auth grpc_auth.Auth, user gprc_user.UserManagement,
 	limiter *ratelimiter.RateLimiter,
+	producer *kafka.Producer,
 ) *App {
-
-	// Создаём реестр метрик
-	grpcMetrics := grpc_prometheus.NewServerMetrics()
-
-	reg := prometheus.NewRegistry()
-	reg.MustRegister(grpcMetrics)
-
-	// Дополнительные пользовательские метрики (например, счетчик ошибок)
-	reg.MustRegister(
-		gprc_metrics.ErrorCounter,
-		gprc_metrics.RequestDuration,
-	)
 
 	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(chainUnaryInterceptors(
 		gprc_user.UserInterceptor(cfg),
 		grpc_auth.AuthInterceptor(limiter),
-		gprc_metrics.MetricsUnaryInterceptor,
-	)),
-		grpc.ChainUnaryInterceptor(
-			grpcMetrics.UnaryServerInterceptor(),
-		),
-		grpc.ChainStreamInterceptor(
-			grpcMetrics.StreamServerInterceptor(),
-		),
-	)
+		gprc_metrics.MetricsUnaryInterceptor(producer),
+	)))
 
 	// Включаем серверную рефлексию (полезно для отладки)
 	reflection.Register(gRPCServer)
-
-	// Включаем сбор метрик для gRPC
-	grpcMetrics.InitializeMetrics(gRPCServer)
 
 	grpc_auth.Register(gRPCServer, auth)
 	gprc_user.Register(gRPCServer, user)
@@ -85,20 +60,10 @@ func New(
 		log:        log,
 		port:       cfg.GRPC.Port,
 		gRPCServer: gRPCServer,
-		registry:   reg,
 	}
 }
 
 func (a *App) MustRun() {
-	go func() {
-		// Поднимаем HTTP сервер для экспорта метрик
-		http.Handle("/metrics", promhttp.HandlerFor(a.registry, promhttp.HandlerOpts{}))
-		a.log.Debug("Prometheus метрики доступны на :9090/metrics")
-		if err := http.ListenAndServe(":9090", nil); err != nil {
-			a.log.Error("Ошибка запуска HTTP сервера:", sl.Err(err))
-		}
-	}()
-
 	if err := a.run(); err != nil {
 		panic(err)
 	}

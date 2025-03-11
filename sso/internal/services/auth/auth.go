@@ -8,6 +8,7 @@ import (
 	"sso/sso/internal/config"
 	"sso/sso/internal/domain/models"
 	user_jwt "sso/sso/internal/lib/jwt"
+	"sso/sso/internal/lib/kafka"
 	"sso/sso/internal/lib/logger/sl"
 	"sso/sso/internal/storage"
 	"sso/sso/pkg/utils"
@@ -22,6 +23,7 @@ type Auth struct {
 	appProvider     AppProvider
 	sessionProvider SessionsProvider
 	cfg             *config.Config
+	producer        *kafka.Producer
 }
 
 var (
@@ -62,6 +64,7 @@ type AppProvider interface {
 func New(
 	log *slog.Logger,
 	cfg *config.Config,
+	producer *kafka.Producer,
 	userSaver UserSaver, userProvider UserProvider, appProvider AppProvider, sessionProvider SessionsProvider,
 ) *Auth {
 	return &Auth{
@@ -71,6 +74,7 @@ func New(
 		appProvider:     appProvider,
 		sessionProvider: sessionProvider,
 		cfg:             cfg,
+		producer:        producer,
 	}
 }
 
@@ -160,6 +164,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*mode
 		slog.String("op", op),
 		slog.String("email", user.Email),
 	)
+
 	log.Info("registering user")
 
 	//get fingerprint and clientIP with context

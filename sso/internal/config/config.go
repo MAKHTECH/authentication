@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 	"os"
 	"sso/sso/pkg/directories"
@@ -16,6 +17,7 @@ type Config struct {
 	Jwt         JwtConfig   `json:"jwt" env-required:"true"`
 	GRPC        GRPCConfig  `json:"grpc"`
 	Redis       RedisConfig `json:"redis"`
+	Kafka       KafkaConfig `json:"kafka"`
 }
 
 type GRPCConfig struct {
@@ -32,6 +34,10 @@ type RedisConfig struct {
 type JwtConfig struct {
 	AccessTokenTTL  time.Duration `json:"access_token_expiration_minute"`
 	RefreshTokenTTL time.Duration `json:"refresh_token_expiration_minute"`
+}
+
+type KafkaConfig struct {
+	Brokers []string `json:"brokers"`
 }
 
 func MustLoad() *Config {
@@ -58,6 +64,12 @@ func MustLoadByPath(path string) *Config {
 
 	databaseDirectory := directories.FindDirectoryName("protos") + "\\..\\sso\\storage\\sso.db"
 	cfg.StoragePath = databaseDirectory
+
+	// проверка ключа на 32 битность, для PASETO
+	keyBytes := []byte(cfg.Secret)
+	if len(keyBytes) != 32 {
+		panic(fmt.Errorf("ключ должен быть длиной 32 байта, текущая длина: %d", len(keyBytes)))
+	}
 
 	return &cfg
 }

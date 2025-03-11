@@ -11,12 +11,6 @@ import (
 
 // GenerateAccessToken генерирует PASETO access токен для пользователя.
 func GenerateAccessToken(user *models.User, duration time.Duration, secretKey string) (string, error) {
-	// todo убрать проверку ключа в инит конфига
-	keyBytes := []byte(secretKey)
-	if len(keyBytes) != 32 {
-		return "", fmt.Errorf("ключ должен быть длиной 32 байта, текущая длина: %d", len(keyBytes))
-	}
-
 	v2 := paseto.NewV2()
 	claims := map[string]interface{}{
 		"sub":      user.ID,

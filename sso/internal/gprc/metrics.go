@@ -2,54 +2,36 @@ package gprc_metrics
 
 import (
 	"context"
-	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
+	"sso/sso/internal/domain/models"
+	"sso/sso/internal/lib/kafka"
 	"time"
 )
 
-// RequestDuration Гистограмма времени выполнения
-var RequestDuration = prometheus.NewHistogramVec(
-	prometheus.HistogramOpts{
-		Name:    "grpc_request_duration_seconds",
-		Help:    "Время выполнения gRPC-запросов",
-		Buckets: prometheus.DefBuckets,
-	}, []string{"method"},
-)
+// MetricsUnaryInterceptor интерцептор
+func MetricsUnaryInterceptor(producer *kafka.Producer) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error,
+	) {
+		start := time.Now()
 
-// ErrorCounter Счетчик ошибок
-var ErrorCounter = prometheus.NewCounterVec(
-	prometheus.CounterOpts{
-		Name: "grpc_errors_total",
-		Help: "Количество ошибок gRPC",
-	},
-	[]string{"method", "error_type"},
-)
+		resp, err = handler(ctx, req)
 
-////ActiveConnections Счетчик активных соединений
-//var ActiveConnections = prometheus.NewGaugeVec(
-//	prometheus.GaugeOpts{
-//		Name: "grpc_active_connections",
-//		Help: "Количество активных соединений gRPC",
-//	},
-//	[]string{"method"},
-//)
+		// todo panic: send on closed channel
+		// записываем метрику выполнения handlers
+		duration := time.Since(start).Seconds()
+		producer.SendMetric(map[string]interface{}{
+			"method":   info.FullMethod,
+			"duration": duration,
+		}, models.HandlerDurationTopic)
 
-func MetricsUnaryInterceptor(
-	ctx context.Context, req interface{}, info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (resp interface{}, err error,
-) {
-	start := time.Now()
+		// метрика для счетчика ошибок
+		if err != nil {
+			producer.SendMetric(map[string]interface{}{
+				"method":     info.FullMethod,
+				"error_type": "internal",
+			}, models.HandlerDurationTopic)
+		}
 
-	resp, err = handler(ctx, req)
-
-	// записываем метрику выполнения handlers
-	duration := time.Since(start).Seconds()
-	RequestDuration.WithLabelValues(info.FullMethod).Observe(duration)
-
-	// метрика для счетчика ошибок
-	if err != nil {
-		ErrorCounter.WithLabelValues(info.FullMethod, "internal").Inc()
+		return
 	}
-
-	return
 }

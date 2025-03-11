@@ -4,9 +4,10 @@ import (
 	"log/slog"
 	grpcapp "sso/sso/internal/app/gprc"
 	"sso/sso/internal/config"
+	"sso/sso/internal/lib/kafka"
+	"sso/sso/internal/lib/ratelimiter"
 	"sso/sso/internal/services/auth"
 	"sso/sso/internal/services/user"
-	"sso/sso/internal/storage/ratelimiter"
 	redis "sso/sso/internal/storage/redis"
 	"sso/sso/internal/storage/sqlite"
 )
@@ -25,11 +26,22 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 	}
 
 	rateLimiter := ratelimiter.NewRateLimiter(rStorage.Client)
+	kafkaProducer, err := kafka.NewKafkaProducer(cfg.Kafka.Brokers, "")
+	if err != nil {
+		panic(err)
+	}
+	defer kafkaProducer.Close()
 
-	authService := auth.New(log, cfg, storage, storage, storage, rStorage)
-	userService := user.New(log, storage, rStorage, cfg)
+	authService := auth.New(
+		log, cfg, kafkaProducer,
+		storage, storage, storage, rStorage,
+	)
 
-	grpcApp := grpcapp.New(log, cfg, authService, userService, rateLimiter)
+	userService := user.New(
+		log, storage, rStorage, cfg,
+	)
+
+	grpcApp := grpcapp.New(log, cfg, authService, userService, rateLimiter, kafkaProducer)
 
 	return &App{
 		GRPCSrv: grpcApp,
