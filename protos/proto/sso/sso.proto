@@ -28,7 +28,7 @@ service Auth {
 }
 
 service User {
-// Назначение роли пользователю (для админов)
+  // Назначение роли пользователю (для админов)
   rpc AssignRole (AssignRoleRequest) returns (AssignRoleResponse);
 }
 

@@ -17,6 +17,6 @@
     "refresh_token_expiration_minute": 44640
   },
   "kafka": {
-    "brokers": ["0.0.0.0:29092"]
+    "brokers": ["localhost:29092"]
   }
 }

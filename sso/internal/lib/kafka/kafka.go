@@ -14,7 +14,7 @@ type Producer struct {
 	//topic    string
 }
 
-func NewKafkaProducer(brokers []string, topic string) (*Producer, error) {
+func NewKafkaProducer(brokers []string) (*Producer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = false // Отключаем ожидание успешной отправки
 	config.Producer.Return.Errors = true     // Логируем ошибки
@@ -22,6 +22,7 @@ func NewKafkaProducer(brokers []string, topic string) (*Producer, error) {
 	config.Producer.Compression = sarama.CompressionSnappy // Оптимизация скорости
 	config.Producer.Flush.Frequency = 500                  // Отправка сообщений пачками раз в 500мс
 
+	fmt.Println(brokers)
 	producer, err := sarama.NewAsyncProducer(brokers, config)
 	if err != nil {
 		return nil, err
@@ -56,10 +57,17 @@ func (kp *Producer) SendMetric(metric map[string]interface{}, topic models.Topic
 		Value: sarama.ByteEncoder(message),
 	}:
 		log.Println("Метрика отправлена в Kafka:", string(message))
-	case err = <-kp.producer.Errors():
-		log.Println("Ошибка отправки в Kafka:", err)
+
+	case err, ok := <-kp.producer.Errors():
+		if !ok {
+			log.Println("Канал ошибок закрыт")
+		} else if err != nil {
+			log.Println("Ошибка отправки в Kafka:", err)
+		} else {
+			log.Println("Получено nil из канала ошибок")
+		}
+
 	default:
-		// Если канал Input() закрыт или блокируется, логируем проблему
 		log.Println("Не удалось отправить метрику: канал блокируется или закрыт")
 	}
 }

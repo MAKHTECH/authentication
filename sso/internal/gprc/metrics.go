@@ -16,7 +16,6 @@ func MetricsUnaryInterceptor(producer *kafka.Producer) grpc.UnaryServerIntercept
 
 		resp, err = handler(ctx, req)
 
-		// todo panic: send on closed channel
 		// записываем метрику выполнения handlers
 		duration := time.Since(start).Seconds()
 		producer.SendMetric(map[string]interface{}{
@@ -29,7 +28,7 @@ func MetricsUnaryInterceptor(producer *kafka.Producer) grpc.UnaryServerIntercept
 			producer.SendMetric(map[string]interface{}{
 				"method":     info.FullMethod,
 				"error_type": "internal",
-			}, models.HandlerDurationTopic)
+			}, models.ErrorCounterTopic)
 		}
 
 		return

@@ -37,7 +37,6 @@ type AuthClient interface {
 	// Обновление токена (для долгосрочных сессий)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	// Выявление всех авторизованных устройств на аккаунт
-	// todo check permissions
 	GetDevices(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*GetDevicesResponse, error)
 	// Выход из системы (инвалидация токена)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
@@ -112,7 +111,6 @@ type AuthServer interface {
 	// Обновление токена (для долгосрочных сессий)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	// Выявление всех авторизованных устройств на аккаунт
-	// todo check permissions
 	GetDevices(context.Context, *GetDevicesRequest) (*GetDevicesResponse, error)
 	// Выход из системы (инвалидация токена)
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
@@ -292,22 +290,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	// // Получение информации о текущем пользователе
-	// rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
-	//
-	// // Обновление профиля пользователя
-	// rpc UpdateProfile (UpdateProfileRequest) returns (UpdateProfileResponse);
-	//
-	// // Удаление аккаунта
-	// rpc DeleteAccount (DeleteAccountRequest) returns (DeleteAccountResponse);
-	//
-	// // Смена пароля
-	// rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
-	//
-	// // Получение списка пользователей (для админов)
-	// rpc ListUsers (ListUsersRequest) returns (ListUsersResponse);
-	//
-	// // todo Назначение роли пользователю (для админов)
+	// Назначение роли пользователю (для админов)
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
 }
 
@@ -333,22 +316,7 @@ func (c *userClient) AssignRole(ctx context.Context, in *AssignRoleRequest, opts
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
 type UserServer interface {
-	// // Получение информации о текущем пользователе
-	// rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
-	//
-	// // Обновление профиля пользователя
-	// rpc UpdateProfile (UpdateProfileRequest) returns (UpdateProfileResponse);
-	//
-	// // Удаление аккаунта
-	// rpc DeleteAccount (DeleteAccountRequest) returns (DeleteAccountResponse);
-	//
-	// // Смена пароля
-	// rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
-	//
-	// // Получение списка пользователей (для админов)
-	// rpc ListUsers (ListUsersRequest) returns (ListUsersResponse);
-	//
-	// // todo Назначение роли пользователю (для админов)
+	// Назначение роли пользователю (для админов)
 	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
 	mustEmbedUnimplementedUserServer()
 }

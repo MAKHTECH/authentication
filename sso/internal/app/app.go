@@ -26,11 +26,11 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 	}
 
 	rateLimiter := ratelimiter.NewRateLimiter(rStorage.Client)
-	kafkaProducer, err := kafka.NewKafkaProducer(cfg.Kafka.Brokers, "")
+	kafkaProducer, err := kafka.NewKafkaProducer(cfg.Kafka.Brokers)
 	if err != nil {
 		panic(err)
 	}
-	defer kafkaProducer.Close()
+	//defer kafkaProducer.Close()
 
 	authService := auth.New(
 		log, cfg, kafkaProducer,
