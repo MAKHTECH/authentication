@@ -32,16 +32,21 @@
 
 ## 🔥 Технологический стек
 
-| Компонент            | Описание                      |
-|----------------------|-------------------------------|
-| 📝 **Язык**          | Golang                        |
-| ⚡ **gRPC**           | Высокопроизводительный API    |
-| 🔐 **PASETO**        | Защищенная аутентификация     |
-| 🗄️ **SQLite**       | Основная база данных          |
-| 🔥 **Redis**         | Хранение активных сессий      |
-| 📜 **slog**          | Структурированное логирование |
-| 📈 **Prometheus**    | Метрики сервиса               |
-| 💠 **kafka** (план)  | Авто обновление конфига        |
+Проект использует современные технологии для высокой производительности и безопасности:
+
+### 📝 Backend  
+- ![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)  
+- ![gRPC](https://img.shields.io/badge/gRPC-4285F4?style=for-the-badge&logo=google&logoColor=white)  
+- ![PASETO](https://img.shields.io/badge/PASETO-000000?style=for-the-badge&logoColor=white)  
+
+### 🗄️ Хранение данных  
+- ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)  
+- ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)  
+- ![Kafka](https://img.shields.io/badge/Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)  
+
+### 📊 Мониторинг и логирование  
+- ![slog](https://img.shields.io/badge/slog-FFD43B?style=for-the-badge&logoColor=black)  
+- ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)  
 
 
 ---
