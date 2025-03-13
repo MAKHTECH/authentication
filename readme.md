@@ -1,4 +1,4 @@
-11# 🔐 Auth Service (gRPC + PASETO)
+🔐 Auth Service (gRPC + PASETO)
 
 ![Go Version](https://img.shields.io/badge/go-1.21%2B-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
