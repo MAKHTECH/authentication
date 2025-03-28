@@ -1,7 +1,6 @@
 .idea
-go.mod
-go.sum
 sso/data
 data
 tmp
 sso/cmd/tmp
+vendor

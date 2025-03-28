@@ -5,16 +5,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/mattn/go-sqlite3"
 	ssov1 "sso/protos/gen/go/sso"
 	"sso/sso/internal/domain/models"
 	"sso/sso/internal/storage"
+
+	"github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func (s *Storage) SaveUser(ctx context.Context, email, username, passHash string) (int64, error) {
 	const op string = "storage.sqlite.SaveUser"
 
-	stmt, err := s.db.Prepare("INSERT INTO users(email, username, pass_hash) VALUES(?, ?, ?)")
+	stmt, err := s.db.Prepare("INSERT INTO users(email, username, pass_hash) VALUES(? , ?, ?)")
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}

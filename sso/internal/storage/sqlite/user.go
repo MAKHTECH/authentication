@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/mattn/go-sqlite3"
 	ssov1 "sso/protos/gen/go/sso"
 	"sso/sso/internal/storage"
+
+	"github.com/mattn/go-sqlite3"
 )
 
 // AssignRole assigns a role to a user.
@@ -20,7 +21,6 @@ func (s *Storage) AssignRole(ctx context.Context, userID uint32, appID int, role
 
 	_, err = stmt.ExecContext(ctx, userID, appID, role.String())
 	if err != nil {
-		fmt.Println(err)
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {
 			if errors.Is(sqliteErr, sqlite3.ErrConstraintUnique) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 	"os"
+	"path/filepath"
 	"sso/sso/pkg/directories"
 	"time"
 )
@@ -43,7 +44,7 @@ type KafkaConfig struct {
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {
-		path = directories.FindDirectoryName("config") + "\\local.json"
+		path = filepath.Join(directories.FindDirectoryName("config"), "local.json")
 	}
 
 	return MustLoadByPath(path)
@@ -62,7 +63,7 @@ func MustLoadByPath(path string) *Config {
 	cfg.Jwt.AccessTokenTTL = time.Duration(time.Minute * cfg.Jwt.AccessTokenTTL)
 	cfg.Jwt.RefreshTokenTTL = time.Duration(time.Minute * cfg.Jwt.RefreshTokenTTL)
 
-	databaseDirectory := directories.FindDirectoryName("protos") + "\\..\\sso\\storage\\sso.db"
+	databaseDirectory := filepath.Join(directories.FindDirectoryName("protos"), "/../sso/storage/sso.db")
 	cfg.StoragePath = databaseDirectory
 
 	// проверка ключа на 32 битность, для PASETO
