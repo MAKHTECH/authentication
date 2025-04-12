@@ -1,7 +1,7 @@
 {
   "env": "local",
   "app_id": 1,
-  "storage_path": "C:\\Users\\makhkets\\Desktop\\grpc-jwt-service\\sso\\storage\\sso.db",
+  "storage_path": "",
   "secret": "X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=",
   "grpc": {
     "port": 44044,
@@ -17,6 +17,6 @@
     "refresh_token_expiration_minute": 44640
   },
   "kafka": {
-    "brokers": ["kafka:29092"]
+    "brokers": ["kafka:9092"]
   }
 }

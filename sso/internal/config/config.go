@@ -3,17 +3,18 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/ilyakaznacheev/cleanenv"
 	"os"
 	"path/filepath"
 	"sso/sso/pkg/directories"
 	"time"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
 	Env         string      `json:"env" env-default:"local"`
 	AppID       int         `json:"app_id" env-required:"true"`
-	StoragePath string      `json:"storage_path" env_required:"true"`
+	StoragePath string      `json:"storage_path"`
 	Secret      string      `json:"secret" env_required:"true"`
 	Jwt         JwtConfig   `json:"jwt" env-required:"true"`
 	GRPC        GRPCConfig  `json:"grpc"`
@@ -27,9 +28,9 @@ type GRPCConfig struct {
 }
 
 type RedisConfig struct {
-	Addr     string `json:"addr"`
-	Password string `json:"password"`
-	DB       int    `json:"db"`
+	Host string `json:"host"`
+	Port int    `json:"port"`
+	DB   int    `json:"db"`
 }
 
 type JwtConfig struct {
@@ -63,7 +64,7 @@ func MustLoadByPath(path string) *Config {
 	cfg.Jwt.AccessTokenTTL = time.Duration(time.Minute * cfg.Jwt.AccessTokenTTL)
 	cfg.Jwt.RefreshTokenTTL = time.Duration(time.Minute * cfg.Jwt.RefreshTokenTTL)
 
-	databaseDirectory := filepath.Join(directories.FindDirectoryName("protos"), "/../sso/storage/sso.db")
+	databaseDirectory := filepath.Join(directories.FindDirectoryName("cmd"), "../storage/sso.db")
 	cfg.StoragePath = databaseDirectory
 
 	// проверка ключа на 32 битность, для PASETO

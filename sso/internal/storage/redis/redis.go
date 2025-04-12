@@ -9,12 +9,12 @@ type RClient struct {
 	Client *redis.Client
 }
 
-func InitRedis(db int, address, password string) *RClient {
+func InitRedis(db int, host, port string) *RClient {
 	// создаем экземпляр клиента Redis
+	var addr string = host + ":" + port
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-		DB:       db,
+		Addr: addr,
+		DB:   db,
 	})
 
 	_, err := rdb.Ping(context.Background()).Result()

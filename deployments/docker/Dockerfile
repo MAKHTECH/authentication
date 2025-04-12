@@ -1,39 +1,36 @@
-# Build stage
+# syntax=docker/dockerfile:1.4
+
+# Этап сборки
 FROM golang:1.24.1-alpine AS builder
 
-# Install dependencies for CGO (required for SQLite)
-RUN apk add --no-cache gcc musl-dev sqlite-dev
+# Устанавливаем зависимости для CGO (необходимы для SQLite)
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache gcc musl-dev sqlite-dev
 
-# Set working directory
 WORKDIR /build
 
-# Copy and download Go modules
+# Копируем файлы модулей для лучшего кеширования
 COPY go.mod go.sum ./
-RUN go mod download
 
-# Copy the rest of the project
+# Загрузка зависимостей с использованием кеша
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download -x
+
+# Копируем исходный код
 COPY . .
 
-# Build the application with verbose output for debugging
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -o sso ./sso/cmd/sso
+# Сборка приложения с использованием кеша для артефактов сборки
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o sso ./sso/cmd/sso
 
-# Verify the file exists
-RUN ls -l /build/sso
-
-# Final stage
+# Финальный этап
 FROM alpine:latest
 
-# Install SQLite runtime dependencies
 RUN apk add --no-cache sqlite-libs
+WORKDIR /app
+COPY --from=builder /build/sso /app/
 
-# Set working directory
-WORKDIR /go/src/app
-
-# Copy the built executable from the builder stage
-COPY --from=builder /build/sso .
-
-# Verify the file exists in the final stage
-RUN ls -l /go/src/app/sso
-
-# Set the command to run the application
-CMD ["/go/src/app/sso"]
+# CMD из Dockerfile будет использован, так как команда из compose не перезаписывается
+CMD ["/app/sso"]

@@ -1,0 +1,15 @@
+.git
+.idea
+Dockerfile
+docker-compose.yml
+*.md
+bin/
+tmp/
+*.log
+
+../...git
+../...idea
+../..*.md
+../..bin/
+../..tmp/
+../..*.log
