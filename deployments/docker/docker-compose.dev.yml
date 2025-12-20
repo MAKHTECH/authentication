@@ -2,20 +2,35 @@ services:
   app:
     build:
       context: ../..
-      # Путь к Dockerfile относительно корня репозитория
-      dockerfile: deployments/docker/Dockerfile
+      dockerfile: deployments/docker/Dockerfile.dev
     ports:
       - "44044:44044"
-    # В production не рекомендуется монтировать исходники,
-    # так как это может перезаписать файлы из финального образа.
-    # Если монтирование нужно для разработки, переместите его в отдельный compose-файл.
-    # volumes:
-    #   - ./:/build
     depends_on:
       redis:
         condition: service_healthy
       kafka:
         condition: service_healthy
+    environment:
+      - CGO_ENABLED=1
+    develop:
+      watch:
+        # Синхронизация Go файлов - Air подхватит изменения
+        - action: sync
+          path: ../../sso
+          target: /app/sso
+        # Синхронизация конфигурации Air
+        - action: sync
+          path: ../../.air.toml
+          target: /app/.air.toml
+        # Синхронизация protos
+        - action: sync
+          path: ../../protos
+          target: /app/protos
+        # Пересборка при изменении go.mod/go.sum
+        - action: rebuild
+          path: ../../go.mod
+        - action: rebuild
+          path: ../../go.sum
 
   redis:
     image: redis:latest
@@ -58,6 +73,6 @@ services:
       start_period: 30s
 
 volumes:
-  clickhouse-data:
   redis-data:
   kafka-data:
+

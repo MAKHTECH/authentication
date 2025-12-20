@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
 # Этап сборки
-FROM golang:1.24.1-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # Устанавливаем зависимости для CGO (необходимы для SQLite)
 RUN --mount=type=cache,target=/var/cache/apk \

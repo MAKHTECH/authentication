@@ -1,0 +1,44 @@
+# Config file for Air (https://github.com/air-verse/air)
+# Hot reload tool for Go applications
+
+root = "."
+tmp_dir = "tmp"
+
+[build]
+# Основная команда сборки
+cmd = "go build -o ./tmp/main ./sso/cmd/sso"
+# Бинарник для запуска после сборки
+bin = "./tmp/main"
+# Полный путь к бинарнику
+full_bin = "./tmp/main"
+# Директории для наблюдения
+include_dir = ["sso"]
+include_ext = ["go", "tpl", "tmpl", "html", "json"]
+# Исключить из наблюдения
+exclude_dir = ["assets", "tmp", "vendor", "tests", "migrations", "storage", "protos"]
+exclude_file = []
+exclude_regex = ["_test.go"]
+exclude_unchanged = true
+follow_symlink = false
+# Задержка перед перезапуском в миллисекундах
+delay = 1000
+# Остановить при ошибке сборки
+stop_on_error = true
+# Отправить SIGINT для остановки процесса
+send_interrupt = true
+# Задержка перед отправкой SIGKILL после SIGINT (наносекунды)
+kill_delay = "500ms"
+
+[log]
+level = "debug"
+time = true
+main_only = false
+
+[color]
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[misc]
+clean_on_exit = true
