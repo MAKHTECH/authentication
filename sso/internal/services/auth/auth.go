@@ -34,6 +34,10 @@ var (
 	InvalidRefreshToken   = errors.New("invalid refresh token")
 )
 
+type TelegramService interface {
+	LoginTelegram(ctx context.Context, telegramUser models.TelegramAuthUser) (*models.TokenPair, error)
+}
+
 type UserSaver interface {
 	SaveUser(
 		ctx context.Context,
@@ -41,6 +45,22 @@ type UserSaver interface {
 		username string,
 		passHash string,
 	) (uid int64, err error)
+	SaveTelegramUser(
+		ctx context.Context,
+		telegramID int64,
+		username string,
+		firstName string,
+		lastName string,
+		photoURL string,
+	) (uid int64, err error)
+	UpdateTelegramUser(
+		ctx context.Context,
+		telegramID int64,
+		username string,
+		firstName string,
+		lastName string,
+		photoURL string,
+	) error
 }
 
 type SessionsProvider interface {
@@ -53,6 +73,7 @@ type SessionsProvider interface {
 type UserProvider interface {
 	User(ctx context.Context, username string, appID int) (*models.User, error)
 	UserByID(ctx context.Context, id int) (*models.User, error)
+	UserByTelegramID(ctx context.Context, telegramID int64, appID int) (*models.User, error)
 
 	//CheckUserPermission(ctx context.Context, userID int, appID int32, permission string) error
 }
@@ -116,7 +137,19 @@ func (a *Auth) Login(ctx context.Context, user models.AuthUser) (*models.TokenPa
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if ok := utils.ComparePasswordHash(user.Password, a.cfg.Secret, userObj.PassHash); !ok {
+	// Проверяем, что пользователь зарегистрирован через email
+	if !userObj.IsEmailUser() {
+		a.log.Error("user registered via telegram, cannot login with password")
+		return nil, ErrInvalidCredentials
+	}
+
+	// Проверяем, что PassHash не nil
+	if userObj.PassHash == nil {
+		a.log.Error("invalid credentials", sl.Err(errors.New("password hash is nil")))
+		return nil, ErrInvalidCredentials
+	}
+
+	if ok := utils.ComparePasswordHash(user.Password, a.cfg.Secret, *userObj.PassHash); !ok {
 		a.log.Error("invalid credentials", sl.Err(errors.New("invalid password")))
 		return nil, ErrInvalidCredentials
 	}
@@ -201,9 +234,10 @@ func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*mode
 	// Create User Object
 	userObj := &models.User{
 		ID:       id,
-		Email:    user.Email,
+		Email:    &user.Email,
 		Username: user.Username,
-		PassHash: hashPassword,
+		PassHash: &hashPassword,
+		AuthType: models.AuthTypeEmail,
 		AppID:    user.AppID,
 	}
 
@@ -341,4 +375,147 @@ func (a *Auth) GetDevices(ctx context.Context, userID int32) ([]*models.RefreshS
 	}
 
 	return sessions, nil
+}
+
+// LoginTelegram авторизует пользователя через Telegram.
+// Если пользователь не найден, создает нового.
+func (a *Auth) LoginTelegram(ctx context.Context, telegramUser models.TelegramAuthUser) (*models.TokenPair, error) {
+	const op = "auth.LoginTelegram"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("telegram_id", telegramUser.TelegramID),
+		slog.String("username", telegramUser.Username),
+		slog.Int("app_id", int(telegramUser.AppID)),
+	)
+
+	log.Info("attempting to login user via Telegram")
+
+	// Получаем fingerprint и clientIP из контекста
+	fingerprint := ctx.Value("fingerprint").(string)
+	clientIp := ctx.Value("ip").(string)
+	userAgent := ctx.Value("user-agent").(string)
+
+	// Проверяем App ID
+	app, err := a.appProvider.App(ctx, telegramUser.AppID)
+	if err != nil {
+		if errors.Is(err, storage.ErrAppNotFound) {
+			log.Warn("invalid app id", sl.Err(err))
+			return nil, ErrInvalidApp
+		}
+		log.Error("failed to get app", sl.Err(err))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	_ = app
+
+	// Пытаемся найти пользователя по Telegram ID
+	userObj, err := a.usrProvider.UserByTelegramID(ctx, telegramUser.TelegramID, int(telegramUser.AppID))
+	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			// Пользователь не найден - регистрируем нового
+			log.Info("telegram user not found, creating new user")
+			return a.registerTelegramUser(ctx, telegramUser, fingerprint, clientIp, userAgent)
+		}
+		log.Error("failed to get user by telegram id", sl.Err(err))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Пользователь найден - обновляем данные и авторизуем
+	if err := a.usrSaver.UpdateTelegramUser(ctx, telegramUser.TelegramID,
+		telegramUser.Username, telegramUser.FirstName, telegramUser.LastName, telegramUser.PhotoURL); err != nil {
+		log.Warn("failed to update telegram user data", sl.Err(err))
+		// Не возвращаем ошибку, продолжаем авторизацию
+	}
+
+	// Удаляем из redis старый токен refresh
+	ctx2, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := a.sessionProvider.DeleteRefreshSession(ctx2, fingerprint, strconv.Itoa(int(userObj.ID))); err != nil {
+		a.log.Error("failed to delete refresh token from Redis", sl.Err(err))
+		return nil, err
+	}
+
+	// Генерируем access и refresh токен
+	tokenPair, exp, err := user_jwt.CreateTokenPair(userObj, a.cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Заносим Refresh Token в Redis хранилище
+	ctx3, cancel2 := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel2()
+	if err = a.sessionProvider.SaveRefreshSession(ctx3, &models.RefreshSession{
+		RefreshToken: tokenPair.RefreshToken,
+		UserId:       strconv.FormatInt(userObj.ID, 10),
+		Ua:           userAgent,
+		Ip:           clientIp,
+		Fingerprint:  fingerprint,
+		ExpiresIn:    time.Duration(exp),
+		CreatedAt:    time.Now(),
+	}, a.cfg.Jwt.RefreshTokenTTL); err != nil {
+		return nil, err
+	}
+
+	log.Info("telegram user logged in successfully")
+
+	return tokenPair, nil
+}
+
+// registerTelegramUser регистрирует нового пользователя через Telegram
+func (a *Auth) registerTelegramUser(ctx context.Context, telegramUser models.TelegramAuthUser, fingerprint, clientIp, userAgent string) (*models.TokenPair, error) {
+	const op = "auth.registerTelegramUser"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("telegram_id", telegramUser.TelegramID),
+	)
+
+	// Сохраняем нового пользователя
+	id, err := a.usrSaver.SaveTelegramUser(ctx, telegramUser.TelegramID,
+		telegramUser.Username, telegramUser.FirstName, telegramUser.LastName, telegramUser.PhotoURL)
+	if err != nil {
+		if errors.Is(err, storage.ErrUserExists) {
+			log.Warn("telegram user already exists", sl.Err(err))
+			return nil, fmt.Errorf("%s: %w", op, ErrUserExists)
+		}
+		log.Error("failed to save telegram user", sl.Err(err))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Создаем объект пользователя
+	userObj := &models.User{
+		ID:         id,
+		Username:   telegramUser.Username,
+		TelegramID: &telegramUser.TelegramID,
+		FirstName:  &telegramUser.FirstName,
+		LastName:   &telegramUser.LastName,
+		PhotoURL:   &telegramUser.PhotoURL,
+		AuthType:   models.AuthTypeTelegram,
+		AppID:      telegramUser.AppID,
+	}
+
+	// Генерируем токены
+	tokenPair, exp, err := user_jwt.CreateTokenPair(userObj, a.cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Заносим Refresh Token в Redis хранилище
+	ctx2, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err = a.sessionProvider.SaveRefreshSession(ctx2, &models.RefreshSession{
+		RefreshToken: tokenPair.RefreshToken,
+		UserId:       strconv.FormatInt(userObj.ID, 10),
+		Ua:           userAgent,
+		Ip:           clientIp,
+		Fingerprint:  fingerprint,
+		ExpiresIn:    time.Duration(exp),
+		CreatedAt:    time.Now(),
+	}, a.cfg.Jwt.RefreshTokenTTL); err != nil {
+		return nil, err
+	}
+
+	log.Info("telegram user registered and logged in successfully")
+
+	return tokenPair, nil
 }

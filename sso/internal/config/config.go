@@ -12,19 +12,25 @@ import (
 )
 
 type Config struct {
-	Env         string      `json:"env" env-default:"local"`
-	AppID       int         `json:"app_id" env-required:"true"`
-	StoragePath string      `json:"storage_path"`
-	Secret      string      `json:"secret" env_required:"true"`
-	Jwt         JwtConfig   `json:"jwt" env-required:"true"`
-	GRPC        GRPCConfig  `json:"grpc"`
-	Redis       RedisConfig `json:"redis"`
-	Kafka       KafkaConfig `json:"kafka"`
+	Env         string         `json:"env" env-default:"local"`
+	AppID       int            `json:"app_id" env-required:"true"`
+	StoragePath string         `json:"storage_path"`
+	Secret      string         `json:"secret" env_required:"true"`
+	Jwt         JwtConfig      `json:"jwt" env-required:"true"`
+	GRPC        GRPCConfig     `json:"grpc"`
+	Telegram    TelegramConfig `json:"telegram"`
+	Redis       RedisConfig    `json:"redis"`
+	Kafka       KafkaConfig    `json:"kafka"`
 }
 
 type GRPCConfig struct {
 	Port    int           `json:"port"`
 	Timeout time.Duration `json:"timeout"`
+}
+
+type TelegramConfig struct {
+	CallbackPort int    `json:"callback_port"`
+	Token        string `json:"token"`
 }
 
 type RedisConfig struct {

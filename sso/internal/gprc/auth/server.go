@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	ssov1 "sso/protos/gen/go/sso"
+	"sso/sso/internal/domain/models"
+	"sso/sso/internal/services/auth"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	ssov1 "sso/protos/gen/go/sso"
-	"sso/sso/internal/domain/models"
-	"sso/sso/internal/services/auth"
 )
 
 type Auth interface {

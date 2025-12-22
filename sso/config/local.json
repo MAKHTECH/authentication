@@ -7,6 +7,11 @@
     "port": 44044,
     "timeout": 5
   },
+  "telegram": {
+    "callback_port": 8099,
+    "token": "6140124734:AAEZnjBntkuy5_uTp3_HPSqAcd_wah2Aa2Y",
+    "username": "ENStealer_bot"
+  },
   "redis": {
     "host": "redis",
     "port": 6379,
