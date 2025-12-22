@@ -3,8 +3,6 @@ package grpcapp
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"log/slog"
 	"net"
 	"sso/sso/internal/config"
@@ -13,6 +11,9 @@ import (
 	gprc_user "sso/sso/internal/gprc/user"
 	"sso/sso/internal/lib/kafka"
 	"sso/sso/internal/lib/ratelimiter"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type App struct {
@@ -84,7 +85,7 @@ func (a *App) run() error {
 
 	a.log.Info("gRPC server is running", slog.String("addr", l.Addr().String()))
 
-	if err := a.gRPCServer.Serve(l); err != nil {
+	if err = a.gRPCServer.Serve(l); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 

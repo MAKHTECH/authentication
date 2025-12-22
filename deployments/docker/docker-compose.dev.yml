@@ -5,6 +5,7 @@ services:
       dockerfile: deployments/docker/Dockerfile.dev
     ports:
       - "44044:44044"
+      - "8099:8099"
     depends_on:
       redis:
         condition: service_healthy
@@ -31,6 +32,15 @@ services:
           path: ../../go.mod
         - action: rebuild
           path: ../../go.sum
+        # Изменение базы данных
+        - action: sync
+          path: ../../sso/storage
+          target: /app/sso/storage
+        # Синхронизация миграций
+        - action: sync
+          path: ../../sso/migrations
+          target: /app/sso/migrations
+
 
   redis:
     image: redis:latest

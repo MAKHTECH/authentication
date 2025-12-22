@@ -26,6 +26,7 @@ func main() {
 
 	application := app.New(log, cfg)
 	go application.GRPCSrv.MustRun()
+	go application.TelegramCallbackServer.MustRun()
 
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)

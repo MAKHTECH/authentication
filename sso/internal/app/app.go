@@ -3,6 +3,7 @@ package app
 import (
 	"log/slog"
 	grpcapp "sso/sso/internal/app/gprc"
+	"sso/sso/internal/app/telegram_callback_auth"
 	"sso/sso/internal/config"
 	"sso/sso/internal/lib/kafka"
 	"sso/sso/internal/lib/ratelimiter"
@@ -14,7 +15,8 @@ import (
 )
 
 type App struct {
-	GRPCSrv *grpcapp.App
+	GRPCSrv                *grpcapp.App
+	TelegramCallbackServer *telegram_callback_auth.App
 }
 
 func New(log *slog.Logger, cfg *config.Config) *App {
@@ -43,8 +45,10 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 	)
 
 	grpcApp := grpcapp.New(log, cfg, authService, userService, rateLimiter, kafkaProducer)
+	telegramApp := telegram_callback_auth.New(log, cfg, authService)
 
 	return &App{
-		GRPCSrv: grpcApp,
+		GRPCSrv:                grpcApp,
+		TelegramCallbackServer: telegramApp,
 	}
 }

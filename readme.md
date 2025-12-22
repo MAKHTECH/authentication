@@ -6,6 +6,8 @@
 ![SQLite](https://img.shields.io/badge/SQLite-Database-green)
 ![Redis](https://img.shields.io/badge/Redis-Cache-red)
 
+localhost:8099/callback/telegram/auth
+
 🚀 **Auth Service** — это безопасный и масштабируемый сервис аутентификации на **gRPC**, основанный на **PASETO (TOKENS)** с защитой токенов и хранением сессий в **Redis**.
 
 ----

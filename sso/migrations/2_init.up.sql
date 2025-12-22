@@ -1,10 +1,20 @@
 CREATE TABLE IF NOT EXISTS users (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    email      VARCHAR(50) NOT NULL UNIQUE,
-    pass_hash  VARCHAR(100) NOT NULL,
-    username   VARCHAR(15) UNIQUE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    email       VARCHAR(50) UNIQUE,              -- NULL для Telegram авторизации
+    pass_hash   VARCHAR(100),                    -- NULL для Telegram авторизации
+    username    VARCHAR(50) UNIQUE,
+    telegram_id BIGINT UNIQUE,                   -- Telegram user ID (NULL для email авторизации)
+    first_name  VARCHAR(100),                    -- Имя пользователя Telegram
+    last_name   VARCHAR(100),                    -- Фамилия пользователя Telegram
+    photo_url   TEXT,                            -- URL фото профиля Telegram
+    auth_type   VARCHAR(20) NOT NULL DEFAULT 'email', -- 'email' или 'telegram'
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- Проверка: либо email+pass_hash, либо telegram_id должны быть заполнены
+    CHECK (
+        (auth_type = 'email' AND email IS NOT NULL AND pass_hash IS NOT NULL) OR
+        (auth_type = 'telegram' AND telegram_id IS NOT NULL)
+    )
 );
 
 -- Триггер для обновления updated_at при изменении записи
