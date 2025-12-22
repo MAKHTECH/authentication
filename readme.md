@@ -1,183 +1,105 @@
-🔐 Auth Service (gRPC + PASETO)
+# 🔐 Authentication Service
 
 ![Go Version](https://img.shields.io/badge/go-1.21%2B-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![gRPC](https://img.shields.io/badge/gRPC-Enabled-purple)
-![SQLite](https://img.shields.io/badge/SQLite-Database-green)
-![Redis](https://img.shields.io/badge/Redis-Cache-red)
 
-localhost:8099/callback/telegram/auth
-
-🚀 **Auth Service** — это безопасный и масштабируемый сервис аутентификации на **gRPC**, основанный на **PASETO (TOKENS)** с защитой токенов и хранением сессий в **Redis**.
-
-----
-
-## 🌟 Функционал API
-
-### 🛡️ **AuthService**
-- 🔹 **Register** — регистрация нового пользователя
-- 🔹 **Login** — вход в систему
-- 🔹 **RefreshToken** — обновление токена (долгосрочные сессии)
-- 🔹 **GetDevices** — просмотр всех активных сессий
-- 🔹 **Logout** — выход из системы (инвалидация токена)
-- 🔸 **Rate Limiter** — ограничение кол-во попыток запроса (блокировка по ip)
-
-### 👥 **UserService**
-- 🔹 **AssignRole** — назначение роли пользователю (для админов)
-
-### 🌐 **Metrics**
-- 🔹 **RequestDuration** — гистограмма времени выполнения хэндлера
-- 🔹 **ErrorCounter** — счетчик ошибок
-
+Современный микросервис аутентификации на **gRPC** с использованием **PASETO** токенов, поддержкой Redis для управления сессиями и интеграцией с Telegram для авторизации.
 
 ---
 
-## 🔥 Технологический стек
+## ✨ Основные возможности
 
-Проект использует современные технологии для высокой производительности и безопасности:
+### Аутентификация и авторизация
+- **Регистрация и вход** — классическая аутентификация по логину/паролю
+- **Telegram Login** — вход через Telegram аккаунт
+- **JWT/PASETO токены** — безопасное управление сессиями
+- **Refresh токены** — автоматическое обновление сессий
+- **Управление устройствами** — просмотр и контроль активных сессий
+- **Rate Limiting** — защита от брутфорса и DDoS атак
 
-### 📝 Backend  
-- ![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)  
-- ![gRPC](https://img.shields.io/badge/gRPC-4285F4?style=for-the-badge&logo=google&logoColor=white)  
-- ![PASETO](https://img.shields.io/badge/PASETO-000000?style=for-the-badge&logoColor=white)  
+### Управление пользователями
+- **Ролевая модель** — назначение прав доступа
+- **Мультисессии** — поддержка входа с нескольких устройств
 
-### 🗄️ Хранение данных  
-- ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)  
-- ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)  
-- ![Kafka](https://img.shields.io/badge/Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)  
-
-### 📊 Мониторинг и логирование  
-- ![slog](https://img.shields.io/badge/slog-FFD43B?style=for-the-badge&logoColor=black)  
-- ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)  
-
-
----
-# 📌 Хранение refresh токенов в редисе:
-
-- 🔹 **refreshToken** — сам токен
-- 🔹 **fingerprint** — уникальный идентификатор устройства
-- 🔹 **expiresIn** — время истечения токена
-- 🔹 **ip** — IP-адрес пользователя
-- 🔹 **createdAt** — время создания токена
-- 🔹 **userId** — ID пользователя
-- 🔹 **ua** — user-agent (информация об устройстве)
+### Мониторинг
+- **Метрики Prometheus** — отслеживание производительности
+- **Структурированное логирование** — slog для удобной отладки
 
 ---
 
+## 🛠️ Технологии
 
-## 🔮 В планах:
-- 🔄 Добавить авто обновление конфига через **Consul**
+**Backend**  
+![Go](https://img.shields.io/badge/Go-00ADD8?style=flat-square&logo=go&logoColor=white)
+![gRPC](https://img.shields.io/badge/gRPC-4285F4?style=flat-square&logo=google&logoColor=white)
+![PASETO](https://img.shields.io/badge/PASETO-000000?style=flat-square&logoColor=white)
 
-### Возможно будут добавлены
-- 🔄 Добавить OAuth2 (google)
-- 🔄 Добавить 2FA (authy)
-___
+**Хранение данных**  
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
+![Kafka](https://img.shields.io/badge/Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)
 
+**Мониторинг**  
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white)
 
-## 🏗️ Структура проекта
+---
 
-```bash
-sso/
-│   📜 go.mod              # Модульные зависимости Go
-│   📜 go.sum              # Контрольная сумма зависимостей
-│   🚀 main.go             # Главная точка входа
-│   📖 README.md           # Документация проекта
-│
-├── 📂 protos/             # gRPC-протофайлы
-│   ├── 📂 gen/            # Сгенерированные файлы
-│   │   └── 📂 go/
-│   │       └── 📂 sso/
-│   └── 📂 proto/          # Исходные протофайлы
-│       └── 📂 sso/
-│
-├── 📂 cmd/                # Исполняемые файлы
-│   ├── 📂 migrator/       # Мигратор базы данных
-│   ├── 📂 sso/            # Основной сервис
-│   │   └── 📂 tmp/        # Временные файлы
-│   ├── 📂 test/           # Тестовые утилиты
-│   └── 📂 tmp/            # Временные файлы
-│
-├── 📂 config/             # Конфигурация сервиса
-│
-├── 📂 internal/           # Внутренние модули
-│   ├── 📂 app/            # Управление приложением
-│   │   └── 📂 grpc/       # gRPC-сервер
-│   ├── 📂 config/         # Внутренние настройки
-│   ├── 📂 domain/         # Бизнес-логика
-│   │   ├── 📂 custom_models/  # Кастомные модели
-│   │   └── 📂 models/          # Основные модели
-│   ├── 📂 grpc/           # gRPC-сервисы
-│   │   ├── 📂 auth/
-│   │   └── 📂 user/
-│   ├── 📂 lib/            # Вспомогательные модули
-│   │   ├── 🔐 jwt/        # Управление JWT-токенами
-│   │   └── 📂 logger/     # Логирование
-│   │       ├── 📂 handlers/
-│   │       │   ├── 📝 slogdiscard/
-│   │       │   └── 🎨 slogpretty/
-│   │       └── 📂 sl/
-│   ├── 📂 services/       # Основная бизнес-логика
-│   │   ├── 🔑 auth/
-│   │   └── 👥 user/
-│   └── 📂 storage/        # Работа с базой данных
-│       ├── 🛢️ logger/
-│       ├── 🔥 redis/
-│       └── 🗄️ sqlite/
-│
-├── 📂 migrations/         # Миграции базы данных
-│
-├── 📂 pkg/                # Пакеты утилит
-│   ├── 📂 directories/
-│   └── 📂 utils/
-│
-├── 📂 storage/            # Файлы хранения
-│
-└── 📂 tests/              # Тестирование
-    ├── 🧪 migrations/
-    └── 🔬 suite/
+## 📡 API
 
+### AuthService (gRPC)
+- `Register` — регистрация нового пользователя
+- `Login` — вход по логину/паролю
+- `TelegramAuth` — авторизация через Telegram
+- `RefreshToken` — обновление access токена
+- `GetDevices` — список активных сессий пользователя
+- `Logout` — завершение сессии
+
+### UserService (gRPC)
+- `AssignRole` — управление ролями пользователей
+
+---
+
+## 🔑 Структура сессии в Redis
+
+```json
+{
+  "refreshToken": "token_value",
+  "fingerprint": "device_identifier",
+  "expiresIn": 1640000000,
+  "ip": "192.168.1.1",
+  "createdAt": 1639000000,
+  "userId": "user_id",
+  "userAgent": "Mozilla/5.0..."
+}
 ```
 
+---
 
-## 🗄️ Структура базы данных
+## 📁 Структура проекта
 
-```sql
-CREATE TABLE IF NOT EXISTS users (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    email      VARCHAR(50) NOT NULL UNIQUE,
-    pass_hash  VARCHAR(100) NOT NULL,
-    username   VARCHAR(15) UNIQUE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Триггер для обновления updated_at при изменении записи
-CREATE TRIGGER IF NOT EXISTS update_users_updated_at
-    AFTER UPDATE ON users
-    FOR EACH ROW
-BEGIN
-    UPDATE users
-    SET updated_at = CURRENT_TIMESTAMP
-    WHERE id = OLD.id AND created_at = OLD.created_at;
-END;
-
-
-CREATE TABLE IF NOT EXISTS apps
-(
-    id     INTEGER PRIMARY KEY,
-    name   TEXT NOT NULL UNIQUE,
-    secret TEXT NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS user_app_roles
-(
-    id      INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    app_id  INTEGER NOT NULL,
-    role    TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE,
-    UNIQUE (user_id, app_id)
-);
+```
+authentication/
+├── protos/              # Protocol Buffers
+│   ├── gen/go/         # Сгенерированный Go код
+│   └── proto/          # .proto файлы
+├── sso/
+│   ├── cmd/            # Точки входа
+│   │   ├── migrator/   # Миграции БД
+│   │   └── sso/        # Основное приложение
+│   ├── config/         # Конфигурационные файлы
+│   ├── internal/
+│   │   ├── app/        # Инициализация приложения
+│   │   ├── domain/     # Модели данных
+│   │   ├── grpc/       # gRPC handlers
+│   │   ├── http/       # HTTP handlers (Telegram callback)
+│   │   ├── lib/        # Утилиты (jwt, kafka, logger)
+│   │   ├── services/   # Бизнес-логика
+│   │   └── storage/    # Слой доступа к данным
+│   ├── migrations/     # SQL миграции
+│   ├── tests/          # Интеграционные тесты
+│   └── pkg/            # Публичные утилиты
+└── deployments/
+    └── docker/         # Docker конфигурация
 ```
 
+---
