@@ -25,6 +25,11 @@ docker-dev-down:
 migrate:
 	go run ./cmd/migrator --storage-path=./storage/sso.db --migrations-path=./migrations
 
+
+# Вход в SQLite через Docker контейнер
+sqlite-docker:
+	docker compose -f ../deployments/docker/docker-compose.dev.yml exec app sqlite3 /app/sso/storage/sso.db
+
 generate:
 	protoc --go_out=../protos/gen/go/sso/ --go_opt=paths=source_relative --go-grpc_out=../protos/gen/go/sso/ --go-grpc_opt=paths=source_relative ../protos/proto/sso/sso.proto
 

@@ -26,11 +26,20 @@ func New(storagePath string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
+	// Включаем режим WAL для лучшей производительности и надежности
+	if _, err := db.Exec("PRAGMA journal_mode = WAL;"); err != nil {
+		return nil, fmt.Errorf("%s: failed to enable WAL mode: %w", op, err)
+	}
+
+	// Включаем синхронизацию NORMAL для баланса производительности и надежности
+	if _, err := db.Exec("PRAGMA synchronous = NORMAL;"); err != nil {
+		return nil, fmt.Errorf("%s: failed to set synchronous mode: %w", op, err)
+	}
+
 	if _, err := db.Exec("PRAGMA foreign_keys = ON;"); err != nil {
 		return nil, fmt.Errorf("failed to enable foreign keys: %w", err)
 	}
-	//
-
+	
 	return &Storage{db: db}, nil
 }
 

@@ -13,6 +13,9 @@ services:
         condition: service_healthy
     environment:
       - CGO_ENABLED=1
+    volumes:
+      # Монтируем директорию с базой данных для сохранения данных между перезапусками
+      - ../../sso/storage:/app/sso/storage
     develop:
       watch:
         # Синхронизация Go файлов - Air подхватит изменения

@@ -63,7 +63,6 @@ func (s *server) TelegramCallbackHandler(w http.ResponseWriter, r *http.Request)
 
 	// validate hash
 	if err = modelAuthorizationData.Check(s.config.Telegram.Token); err != nil {
-		// Invalid hash.
 		s.log.Error("Invalid hash", sl.Err(err))
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

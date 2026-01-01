@@ -10,7 +10,6 @@ import (
 	"sso/sso/internal/storage"
 
 	"github.com/mattn/go-sqlite3"
-	_ "modernc.org/sqlite"
 )
 
 func (s *Storage) SaveUser(ctx context.Context, email, username, passHash string) (int64, error) {
@@ -20,6 +19,7 @@ func (s *Storage) SaveUser(ctx context.Context, email, username, passHash string
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
+	defer stmt.Close()
 
 	res, err := stmt.ExecContext(ctx, email, username, passHash)
 	if err != nil {
@@ -49,6 +49,7 @@ func (s *Storage) SaveTelegramUser(ctx context.Context, telegramID int64, userna
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
+	defer stmt.Close()
 
 	// Используем sql.NullString для опциональных полей
 	var usernameVal, firstNameVal, lastNameVal, photoURLVal interface{}

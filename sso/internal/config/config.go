@@ -73,6 +73,9 @@ func MustLoadByPath(path string) *Config {
 	databaseDirectory := filepath.Join(directories.FindDirectoryName("cmd"), "../storage/sso.db")
 	cfg.StoragePath = databaseDirectory
 
+	// Логируем путь к базе данных для отладки
+	fmt.Printf("Database path: %s\n", cfg.StoragePath)
+
 	// проверка ключа на 32 битность, для PASETO
 	keyBytes := []byte(cfg.Secret)
 	if len(keyBytes) != 32 {
