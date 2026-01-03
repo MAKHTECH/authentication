@@ -30,7 +30,16 @@ FROM alpine:latest
 
 RUN apk add --no-cache sqlite-libs
 WORKDIR /app
+
+# Создаем директорию для хранения базы данных и конфигурации
+RUN mkdir -p /app/storage /app/config
+
 COPY --from=builder /build/sso /app/
+COPY --from=builder /build/sso/config/local.json /app/config/local.json
+
+# Устанавливаем переменные окружения
+ENV STORAGE_PATH=/app/storage/sso.db
+ENV CONFIG_PATH=/app/config/local.json
 
 # CMD из Dockerfile будет использован, так как команда из compose не перезаписывается
 CMD ["/app/sso"]

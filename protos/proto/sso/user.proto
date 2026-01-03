@@ -18,3 +18,12 @@ message AssignRoleRequest {
 message AssignRoleResponse {
   bool success = 1;
 }
+
+message ChangeAvatarRequest {
+  int32 app_id = 2;
+  string photo_url = 3;
+}
+
+message ChangeAvatarResponse {
+  bool success = 1;
+}

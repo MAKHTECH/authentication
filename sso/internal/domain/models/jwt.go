@@ -17,6 +17,7 @@ type RefreshSession struct {
 
 type AccessTokenData struct {
 	Username string
+	PhotoURL string
 	Role     ssov1.Role
 	UserID   int64
 	AppID    int32

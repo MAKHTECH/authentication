@@ -2,7 +2,7 @@
   "env": "local",
   "app_id": 1,
   "storage_path": "",
-  "secret": "X7K9p2mJ8vL4tQ5Y6uB0xA1cF2dH9gE=",
+  "private_key": "8dfa36aa4bd7b2b67f7d4c262464766af6ef3aea700ca7303eafe61d7af00d008246bf7f2920befe28960654678e9bf0b0e8141910ad74b09f43eae87b7f821b",
   "grpc": {
     "port": 44044,
     "timeout": 5

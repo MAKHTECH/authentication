@@ -30,5 +30,10 @@ service Auth {
 service User {
   // Назначение роли пользователю (для админов)
   rpc AssignRole (AssignRoleRequest) returns (AssignRoleResponse);
+
+  // Удаление роли у пользователя (для админов)
+  // rpc RevokeRole (RevokeRoleRequest) returns (RevokeRoleResponse);
+
+  rpc ChangeAvatar (ChangeAvatarRequest) returns (ChangeAvatarResponse);
 }
 

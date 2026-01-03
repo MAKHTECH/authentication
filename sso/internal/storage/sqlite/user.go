@@ -39,3 +39,30 @@ func (s *Storage) AssignRole(ctx context.Context, userID uint32, appID int, role
 func (s *Storage) CheckPermission(ctx context.Context, userID int, appID int) error {
 	panic("implement me")
 }
+
+// ChangePhoto обновляет URL фото профиля пользователя
+func (s *Storage) ChangePhoto(ctx context.Context, userID int, photoURL string) error {
+	const op string = "storage.sqlite.user.ChangePhoto"
+
+	stmt, err := s.db.Prepare("UPDATE users SET photo_url = ? WHERE id = ?")
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	result, err := stmt.ExecContext(ctx, photoURL, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if rowsAffected == 0 {
+		return storage.ErrUserNotFound
+	}
+
+	return nil
+}

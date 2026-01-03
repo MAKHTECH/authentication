@@ -1,6 +1,8 @@
 package config
 
 import (
+	"crypto/ed25519"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
@@ -15,7 +17,8 @@ type Config struct {
 	Env         string         `json:"env" env-default:"local"`
 	AppID       int            `json:"app_id" env-required:"true"`
 	StoragePath string         `json:"storage_path"`
-	Secret      string         `json:"secret" env_required:"true"`
+	PrivateKey  string         `json:"private_key" env_required:"true"`
+	PublicKey   string         `json:"public_key"` // Вычисляется из private_key
 	Jwt         JwtConfig      `json:"jwt" env-required:"true"`
 	GRPC        GRPCConfig     `json:"grpc"`
 	Telegram    TelegramConfig `json:"telegram"`
@@ -70,17 +73,29 @@ func MustLoadByPath(path string) *Config {
 	cfg.Jwt.AccessTokenTTL = time.Duration(time.Minute * cfg.Jwt.AccessTokenTTL)
 	cfg.Jwt.RefreshTokenTTL = time.Duration(time.Minute * cfg.Jwt.RefreshTokenTTL)
 
-	databaseDirectory := filepath.Join(directories.FindDirectoryName("cmd"), "../storage/sso.db")
-	cfg.StoragePath = databaseDirectory
+	if envStoragePath := os.Getenv("STORAGE_PATH"); envStoragePath != "" {
+		cfg.StoragePath = envStoragePath
+	} else if cfg.StoragePath == "" {
+		databaseDirectory := filepath.Join(directories.FindDirectoryName("cmd"), "../storage/sso.db")
+		cfg.StoragePath = databaseDirectory
+	}
 
 	// Логируем путь к базе данных для отладки
 	fmt.Printf("Database path: %s\n", cfg.StoragePath)
 
-	// проверка ключа на 32 битность, для PASETO
-	keyBytes := []byte(cfg.Secret)
-	if len(keyBytes) != 32 {
-		panic(fmt.Errorf("ключ должен быть длиной 32 байта, текущая длина: %d", len(keyBytes)))
+	// Проверка и валидация Ed25519 приватного ключа
+	privateKeyBytes, err := hex.DecodeString(cfg.PrivateKey)
+	if err != nil {
+		panic(fmt.Errorf("не удалось декодировать приватный ключ (должен быть hex): %w", err))
 	}
+	if len(privateKeyBytes) != ed25519.PrivateKeySize {
+		panic(fmt.Errorf("приватный ключ должен быть %d байт (128 hex символов), получено: %d байт", ed25519.PrivateKeySize, len(privateKeyBytes)))
+	}
+
+	// Вычисляем публичный ключ из приватного
+	privateKey := ed25519.PrivateKey(privateKeyBytes)
+	publicKey := privateKey.Public().(ed25519.PublicKey)
+	cfg.PublicKey = hex.EncodeToString(publicKey)
 
 	return &cfg
 }

@@ -149,7 +149,7 @@ func (a *Auth) Login(ctx context.Context, user models.AuthUser) (*models.TokenPa
 		return nil, ErrInvalidCredentials
 	}
 
-	if ok := utils.ComparePasswordHash(user.Password, a.cfg.Secret, *userObj.PassHash); !ok {
+	if ok := utils.ComparePasswordHash(user.Password, a.cfg.PrivateKey, *userObj.PassHash); !ok {
 		a.log.Error("invalid credentials", sl.Err(errors.New("invalid password")))
 		return nil, ErrInvalidCredentials
 	}
@@ -218,7 +218,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*mode
 	}
 
 	// save user to storage
-	hashPassword := utils.PasswordToHash(user.Password, a.cfg.Secret)
+	hashPassword := utils.PasswordToHash(user.Password, a.cfg.PrivateKey)
 
 	id, err := a.usrSaver.SaveUser(ctx, user.Email, user.Username, hashPassword)
 
@@ -341,7 +341,7 @@ func (a *Auth) Logout(ctx context.Context, accessToken string) (bool, error) {
 	)
 
 	// parse access token
-	accessTokenData, err := user_jwt.ParseToken(accessToken, true, a.cfg.Secret)
+	accessTokenData, err := user_jwt.ParseToken(accessToken, true, a.cfg.PrivateKey)
 	if err != nil {
 		a.log.Error("failed to parse access token", sl.Err(err))
 		return false, err

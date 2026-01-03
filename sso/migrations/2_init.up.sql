@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name  VARCHAR(100),                    -- Имя пользователя Telegram
     last_name   VARCHAR(100),                    -- Фамилия пользователя Telegram
     photo_url   TEXT,                            -- URL фото профиля Telegram
+    avatar_url  VARCHAR(2048) DEFAULT NULL,      -- URL аватарки пользователя (макс 2048 символов)
     auth_type   VARCHAR(20) NOT NULL DEFAULT 'email', -- 'email' или 'telegram'
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -14,6 +15,11 @@ CREATE TABLE IF NOT EXISTS users (
     CHECK (
         (auth_type = 'email' AND email IS NOT NULL AND pass_hash IS NOT NULL) OR
         (auth_type = 'telegram' AND telegram_id IS NOT NULL)
+    ),
+    -- Проверка: avatar_url должен быть валидной ссылкой (http:// или https://) и не слишком длинным
+    CHECK (
+        avatar_url IS NULL OR
+        (LENGTH(avatar_url) <= 2048 AND (avatar_url LIKE 'http://%' OR avatar_url LIKE 'https://%'))
     )
 );
 

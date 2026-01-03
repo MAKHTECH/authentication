@@ -3,12 +3,15 @@ package utils
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/peer"
 	"net/http"
 	"sort"
 	"strings"
+	"time"
+
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 )
 
 func convertMetadataToHTTPHeader(md metadata.MD) http.Header {
@@ -68,4 +71,32 @@ func shouldIncludeHeader(key string) bool {
 	default:
 		return false
 	}
+}
+
+// IsImageURL проверяет, что по URL находится изображение
+func IsImageURL(url string) error {
+	// Создаем HTTP клиент с таймаутом
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	// Делаем HEAD запрос, чтобы не скачивать всё изображение
+	resp, err := client.Head(url)
+	if err != nil {
+		return errors.New("unable to reach the URL")
+	}
+	defer resp.Body.Close()
+
+	// Проверяем статус код
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("URL returned non-200 status code")
+	}
+
+	// Проверяем Content-Type
+	contentType := resp.Header.Get("Content-Type")
+	if !strings.HasPrefix(contentType, "image/") {
+		return errors.New("URL does not point to an image (Content-Type is not image/*)")
+	}
+
+	return nil
 }
