@@ -16,12 +16,29 @@ services:
     volumes:
       # Монтируем директорию с базой данных для сохранения данных между перезапусками
       - ../../sso/storage:/app/sso/storage
+      # Кэширование Go модулей между пересборками
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
     develop:
       watch:
-        # Синхронизация Go файлов - Air подхватит изменения
+        # Синхронизация исходного кода по отдельным директориям
         - action: sync
-          path: ../../sso
-          target: /app/sso
+          path: ../../sso/cmd/sso
+          target: /app/sso/cmd/sso
+        - action: sync
+          path: ../../sso/cmd/migrator
+          target: /app/sso/cmd/migrator
+        - action: sync
+          path: ../../sso/internal
+          target: /app/sso/internal
+          ignore:
+            - "*.log"
+        - action: sync
+          path: ../../sso/pkg
+          target: /app/sso/pkg
+        - action: sync
+          path: ../../sso/config
+          target: /app/sso/config
         # Синхронизация конфигурации Air
         - action: sync
           path: ../../.air.toml
@@ -35,10 +52,6 @@ services:
           path: ../../go.mod
         - action: rebuild
           path: ../../go.sum
-        # Изменение базы данных
-        - action: sync
-          path: ../../sso/storage
-          target: /app/sso/storage
         # Синхронизация миграций
         - action: sync
           path: ../../sso/migrations
@@ -88,4 +101,6 @@ services:
 volumes:
   redis-data:
   kafka-data:
+  go-mod-cache:
+  go-build-cache:
 

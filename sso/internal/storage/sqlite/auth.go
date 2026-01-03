@@ -24,8 +24,8 @@ func (s *Storage) SaveUser(ctx context.Context, email, username, passHash string
 	res, err := stmt.ExecContext(ctx, email, username, passHash)
 	if err != nil {
 		var sqliteErr sqlite3.Error
-		if errors.As(err, &sqliteErr) && errors.Is(sqliteErr, sqlite3.ErrConstraintUnique) {
-			return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
+		if errors.As(err, &sqliteErr) && errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
+			return 0, storage.ErrUserExists
 		}
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -69,7 +69,7 @@ func (s *Storage) SaveTelegramUser(ctx context.Context, telegramID int64, userna
 	res, err := stmt.ExecContext(ctx, telegramID, usernameVal, firstNameVal, lastNameVal, photoURLVal)
 	if err != nil {
 		var sqliteErr sqlite3.Error
-		if errors.As(err, &sqliteErr) && errors.Is(sqliteErr, sqlite3.ErrConstraintUnique) {
+		if errors.As(err, &sqliteErr) && errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
 			return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
 		}
 		return 0, fmt.Errorf("%s: %w", op, err)

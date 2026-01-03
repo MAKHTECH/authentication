@@ -23,7 +23,7 @@ func (s *Storage) AssignRole(ctx context.Context, userID uint32, appID int, role
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {
-			if errors.Is(sqliteErr, sqlite3.ErrConstraintUnique) {
+			if errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
 				return storage.ErrUserRoleExists
 			} else if errors.Is(sqliteErr.Code, sqlite3.ErrConstraint) {
 				return storage.ErrUserRoleExists

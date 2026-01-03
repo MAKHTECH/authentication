@@ -219,14 +219,14 @@ func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*mode
 
 	// save user to storage
 	hashPassword := utils.PasswordToHash(user.Password, a.cfg.Secret)
-	log.Debug("СОХРАНЯЮ ПОЛЬЗОВАТЕЛЯ, ЗАХОЖУ В usrSaver.SaveUser")
+
 	id, err := a.usrSaver.SaveUser(ctx, user.Email, user.Username, hashPassword)
-	log.Debug("ВЫХОЖУ ИЗ, ЗАХОЖУ В usrSaver.SaveUser")
+
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
 			log.Warn("user already exists", sl.Err(err))
 
-			return nil, fmt.Errorf("%s: %w", op, ErrUserExists)
+			return nil, ErrUserExists
 		}
 
 		log.Error("failed to save user", sl.Err(err))
