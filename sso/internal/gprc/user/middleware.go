@@ -35,21 +35,20 @@ func UserInterceptor(cfg *config.Config) grpc.UnaryServerInterceptor {
 		}
 
 		// Получаем токен из метаданных
-		// Приоритет: authorization-bin (бинарный) -> authorization (обычный)
+		// Приоритет: authorization (обычный, для Postman/grpcurl) -> authorization-bin (бинарный, для Go клиентов)
 		var accessToken string
 
-		// 1. Пробуем получить из authorization-bin
-		// gRPC автоматически декодирует бинарные метаданные (-bin) из Base64
-		authBinary := md.Get("authorization-bin")
-		if len(authBinary) > 0 && authBinary[0] != "" {
-			accessToken = authBinary[0]
+		// 1. Пробуем получить из authorization (удобно для тестирования в Postman)
+		authorization := md.Get("authorization")
+		if len(authorization) > 0 && authorization[0] != "" {
+			accessToken = authorization[0]
 		}
 
-		// 2. Fallback на обычный токен (authorization) для совместимости
+		// 2. Fallback на authorization-bin (для Go клиентов, gRPC автоматически декодирует из Base64)
 		if accessToken == "" {
-			authorization := md.Get("authorization")
-			if len(authorization) > 0 && authorization[0] != "" {
-				accessToken = authorization[0]
+			authBinary := md.Get("authorization-bin")
+			if len(authBinary) > 0 && authBinary[0] != "" {
+				accessToken = authBinary[0]
 			}
 		}
 
