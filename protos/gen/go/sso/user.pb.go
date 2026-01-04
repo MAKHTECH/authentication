@@ -173,8 +173,8 @@ func (x *AssignRoleResponse) GetSuccess() bool {
 
 type ChangeAvatarRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         int32                  `protobuf:"varint,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	PhotoUrl      string                 `protobuf:"bytes,3,opt,name=photo_url,json=photoUrl,proto3" json:"photo_url,omitempty"`
+	AppId         int32                  `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	PhotoUrl      string                 `protobuf:"bytes,2,opt,name=photo_url,json=photoUrl,proto3" json:"photo_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -267,6 +267,302 @@ func (x *ChangeAvatarResponse) GetSuccess() bool {
 	return false
 }
 
+type ChangeUsernameRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         int32                  `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeUsernameRequest) Reset() {
+	*x = ChangeUsernameRequest{}
+	mi := &file_sso_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeUsernameRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeUsernameRequest) ProtoMessage() {}
+
+func (x *ChangeUsernameRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeUsernameRequest.ProtoReflect.Descriptor instead.
+func (*ChangeUsernameRequest) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ChangeUsernameRequest) GetAppId() int32 {
+	if x != nil {
+		return x.AppId
+	}
+	return 0
+}
+
+func (x *ChangeUsernameRequest) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+type ChangeUsernameResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeUsernameResponse) Reset() {
+	*x = ChangeUsernameResponse{}
+	mi := &file_sso_user_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeUsernameResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeUsernameResponse) ProtoMessage() {}
+
+func (x *ChangeUsernameResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeUsernameResponse.ProtoReflect.Descriptor instead.
+func (*ChangeUsernameResponse) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ChangeUsernameResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+type ChangePasswordRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	AppId           int32                  `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	CurrentPassword string                 `protobuf:"bytes,2,opt,name=current_password,json=currentPassword,proto3" json:"current_password,omitempty"`
+	NewPassword     string                 `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ChangePasswordRequest) Reset() {
+	*x = ChangePasswordRequest{}
+	mi := &file_sso_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordRequest) ProtoMessage() {}
+
+func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
+func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ChangePasswordRequest) GetAppId() int32 {
+	if x != nil {
+		return x.AppId
+	}
+	return 0
+}
+
+func (x *ChangePasswordRequest) GetCurrentPassword() string {
+	if x != nil {
+		return x.CurrentPassword
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+type ChangePasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangePasswordResponse) Reset() {
+	*x = ChangePasswordResponse{}
+	mi := &file_sso_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordResponse) ProtoMessage() {}
+
+func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordResponse.ProtoReflect.Descriptor instead.
+func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ChangePasswordResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type ChangeEmailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         int32                  `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeEmailRequest) Reset() {
+	*x = ChangeEmailRequest{}
+	mi := &file_sso_user_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeEmailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeEmailRequest) ProtoMessage() {}
+
+func (x *ChangeEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeEmailRequest.ProtoReflect.Descriptor instead.
+func (*ChangeEmailRequest) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ChangeEmailRequest) GetAppId() int32 {
+	if x != nil {
+		return x.AppId
+	}
+	return 0
+}
+
+func (x *ChangeEmailRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type ChangeEmailResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeEmailResponse) Reset() {
+	*x = ChangeEmailResponse{}
+	mi := &file_sso_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeEmailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeEmailResponse) ProtoMessage() {}
+
+func (x *ChangeEmailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeEmailResponse.ProtoReflect.Descriptor instead.
+func (*ChangeEmailResponse) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ChangeEmailResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
 var File_sso_user_proto protoreflect.FileDescriptor
 
 const file_sso_user_proto_rawDesc = "" +
@@ -280,10 +576,26 @@ const file_sso_user_proto_rawDesc = "" +
 	"\x12AssignRoleResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"I\n" +
 	"\x13ChangeAvatarRequest\x12\x15\n" +
-	"\x06app_id\x18\x02 \x01(\x05R\x05appId\x12\x1b\n" +
-	"\tphoto_url\x18\x03 \x01(\tR\bphotoUrl\"0\n" +
+	"\x06app_id\x18\x01 \x01(\x05R\x05appId\x12\x1b\n" +
+	"\tphoto_url\x18\x02 \x01(\tR\bphotoUrl\"0\n" +
 	"\x14ChangeAvatarResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess*\x1b\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"J\n" +
+	"\x15ChangeUsernameRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\x05R\x05appId\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"4\n" +
+	"\x16ChangeUsernameResponse\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"|\n" +
+	"\x15ChangePasswordRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\x05R\x05appId\x12)\n" +
+	"\x10current_password\x18\x02 \x01(\tR\x0fcurrentPassword\x12!\n" +
+	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"2\n" +
+	"\x16ChangePasswordResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"A\n" +
+	"\x12ChangeEmailRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\x05R\x05appId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\"+\n" +
+	"\x13ChangeEmailResponse\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email*\x1b\n" +
 	"\x04Role\x12\b\n" +
 	"\x04USER\x10\x00\x12\t\n" +
 	"\x05ADMIN\x10\x01B\x16Z\x14makhkets.go.v1;ssov1b\x06proto3"
@@ -301,13 +613,19 @@ func file_sso_user_proto_rawDescGZIP() []byte {
 }
 
 var file_sso_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_sso_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_sso_user_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_sso_user_proto_goTypes = []any{
-	(Role)(0),                    // 0: auth.Role
-	(*AssignRoleRequest)(nil),    // 1: auth.AssignRoleRequest
-	(*AssignRoleResponse)(nil),   // 2: auth.AssignRoleResponse
-	(*ChangeAvatarRequest)(nil),  // 3: auth.ChangeAvatarRequest
-	(*ChangeAvatarResponse)(nil), // 4: auth.ChangeAvatarResponse
+	(Role)(0),                      // 0: auth.Role
+	(*AssignRoleRequest)(nil),      // 1: auth.AssignRoleRequest
+	(*AssignRoleResponse)(nil),     // 2: auth.AssignRoleResponse
+	(*ChangeAvatarRequest)(nil),    // 3: auth.ChangeAvatarRequest
+	(*ChangeAvatarResponse)(nil),   // 4: auth.ChangeAvatarResponse
+	(*ChangeUsernameRequest)(nil),  // 5: auth.ChangeUsernameRequest
+	(*ChangeUsernameResponse)(nil), // 6: auth.ChangeUsernameResponse
+	(*ChangePasswordRequest)(nil),  // 7: auth.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil), // 8: auth.ChangePasswordResponse
+	(*ChangeEmailRequest)(nil),     // 9: auth.ChangeEmailRequest
+	(*ChangeEmailResponse)(nil),    // 10: auth.ChangeEmailResponse
 }
 var file_sso_user_proto_depIdxs = []int32{
 	0, // 0: auth.AssignRoleRequest.role:type_name -> auth.Role
@@ -329,7 +647,7 @@ func file_sso_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sso_user_proto_rawDesc), len(file_sso_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

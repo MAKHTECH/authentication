@@ -35,5 +35,8 @@ service User {
   // rpc RevokeRole (RevokeRoleRequest) returns (RevokeRoleResponse);
 
   rpc ChangeAvatar (ChangeAvatarRequest) returns (ChangeAvatarResponse);
+  rpc ChangeUsername (ChangeUsernameRequest) returns (ChangeUsernameResponse);
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse);
 }
 

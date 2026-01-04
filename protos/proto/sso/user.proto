@@ -20,10 +20,39 @@ message AssignRoleResponse {
 }
 
 message ChangeAvatarRequest {
-  int32 app_id = 2;
-  string photo_url = 3;
+  int32 app_id = 1;
+  string photo_url = 2;
 }
 
 message ChangeAvatarResponse {
   bool success = 1;
+}
+
+message ChangeUsernameRequest {
+  int32 app_id = 1;
+  string username = 2;
+}
+
+message ChangeUsernameResponse {
+  string username = 1;
+}
+
+
+message ChangePasswordRequest {
+  int32 app_id = 1;
+  string current_password = 2;
+  string new_password = 3;
+}
+
+message ChangePasswordResponse {
+  bool success = 1;
+}
+
+message ChangeEmailRequest {
+  int32 app_id = 1;
+  string email = 2;
+}
+
+message ChangeEmailResponse {
+  string email = 1;
 }

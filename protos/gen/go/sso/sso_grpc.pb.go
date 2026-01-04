@@ -283,8 +283,11 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	User_AssignRole_FullMethodName   = "/auth.User/AssignRole"
-	User_ChangeAvatar_FullMethodName = "/auth.User/ChangeAvatar"
+	User_AssignRole_FullMethodName     = "/auth.User/AssignRole"
+	User_ChangeAvatar_FullMethodName   = "/auth.User/ChangeAvatar"
+	User_ChangeUsername_FullMethodName = "/auth.User/ChangeUsername"
+	User_ChangePassword_FullMethodName = "/auth.User/ChangePassword"
+	User_ChangeEmail_FullMethodName    = "/auth.User/ChangeEmail"
 )
 
 // UserClient is the client API for User service.
@@ -294,6 +297,9 @@ type UserClient interface {
 	// Назначение роли пользователю (для админов)
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
 	ChangeAvatar(ctx context.Context, in *ChangeAvatarRequest, opts ...grpc.CallOption) (*ChangeAvatarResponse, error)
+	ChangeUsername(ctx context.Context, in *ChangeUsernameRequest, opts ...grpc.CallOption) (*ChangeUsernameResponse, error)
+	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error)
+	ChangeEmail(ctx context.Context, in *ChangeEmailRequest, opts ...grpc.CallOption) (*ChangeEmailResponse, error)
 }
 
 type userClient struct {
@@ -324,6 +330,36 @@ func (c *userClient) ChangeAvatar(ctx context.Context, in *ChangeAvatarRequest, 
 	return out, nil
 }
 
+func (c *userClient) ChangeUsername(ctx context.Context, in *ChangeUsernameRequest, opts ...grpc.CallOption) (*ChangeUsernameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangeUsernameResponse)
+	err := c.cc.Invoke(ctx, User_ChangeUsername_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangePasswordResponse)
+	err := c.cc.Invoke(ctx, User_ChangePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) ChangeEmail(ctx context.Context, in *ChangeEmailRequest, opts ...grpc.CallOption) (*ChangeEmailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangeEmailResponse)
+	err := c.cc.Invoke(ctx, User_ChangeEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
@@ -331,6 +367,9 @@ type UserServer interface {
 	// Назначение роли пользователю (для админов)
 	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
 	ChangeAvatar(context.Context, *ChangeAvatarRequest) (*ChangeAvatarResponse, error)
+	ChangeUsername(context.Context, *ChangeUsernameRequest) (*ChangeUsernameResponse, error)
+	ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error)
+	ChangeEmail(context.Context, *ChangeEmailRequest) (*ChangeEmailResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -346,6 +385,15 @@ func (UnimplementedUserServer) AssignRole(context.Context, *AssignRoleRequest) (
 }
 func (UnimplementedUserServer) ChangeAvatar(context.Context, *ChangeAvatarRequest) (*ChangeAvatarResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ChangeAvatar not implemented")
+}
+func (UnimplementedUserServer) ChangeUsername(context.Context, *ChangeUsernameRequest) (*ChangeUsernameResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangeUsername not implemented")
+}
+func (UnimplementedUserServer) ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedUserServer) ChangeEmail(context.Context, *ChangeEmailRequest) (*ChangeEmailResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangeEmail not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 func (UnimplementedUserServer) testEmbeddedByValue()              {}
@@ -404,6 +452,60 @@ func _User_ChangeAvatar_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_ChangeUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeUsernameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ChangeUsername(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_ChangeUsername_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ChangeUsername(ctx, req.(*ChangeUsernameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ChangePassword(ctx, req.(*ChangePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_ChangeEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ChangeEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_ChangeEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ChangeEmail(ctx, req.(*ChangeEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -418,6 +520,18 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeAvatar",
 			Handler:    _User_ChangeAvatar_Handler,
+		},
+		{
+			MethodName: "ChangeUsername",
+			Handler:    _User_ChangeUsername_Handler,
+		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _User_ChangePassword_Handler,
+		},
+		{
+			MethodName: "ChangeEmail",
+			Handler:    _User_ChangeEmail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
