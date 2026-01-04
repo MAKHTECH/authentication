@@ -17,10 +17,12 @@ type RefreshSession struct {
 
 type AccessTokenData struct {
 	Username string
+	Email    *string // может быть nil для Telegram авторизации
 	PhotoURL string
 	Role     ssov1.Role
 	UserID   int64
 	AppID    int32
+	Balance  float64
 	Exp      int64
 }
 

@@ -26,6 +26,7 @@ type User struct {
 	FirstName  *string  // Имя из Telegram
 	LastName   *string  // Фамилия из Telegram
 	PhotoURL   *string  // URL фото из Telegram
+	Balance    float64  // Баланс пользователя
 	AuthType   AuthType // "email" или "telegram"
 	AppID      int32
 	Role       ssov1.Role

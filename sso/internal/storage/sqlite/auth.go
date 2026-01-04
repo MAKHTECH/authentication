@@ -97,6 +97,7 @@ func (s *Storage) UserByTelegramID(ctx context.Context, telegramID int64, appID 
 			u.first_name,
 			u.last_name,
 			u.photo_url,
+			u.balance,
 			u.auth_type,
 			uar.role 
 		FROM users u
@@ -116,7 +117,7 @@ func (s *Storage) UserByTelegramID(ctx context.Context, telegramID int64, appID 
 	var tgID sql.NullInt64
 	var authType string
 
-	err = row.Scan(&user.ID, &email, &user.Username, &passHash, &tgID, &firstName, &lastName, &photoURL, &authType, &roleStr)
+	err = row.Scan(&user.ID, &email, &user.Username, &passHash, &tgID, &firstName, &lastName, &photoURL, &user.Balance, &authType, &roleStr)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)
@@ -207,6 +208,7 @@ func (s *Storage) User(ctx context.Context, username string, appID int) (*models
             u.first_name,
             u.last_name,
             u.photo_url,
+            u.balance,
             u.auth_type,
             uar.role 
         FROM users u
@@ -227,7 +229,7 @@ func (s *Storage) User(ctx context.Context, username string, appID int) (*models
 	var tgID sql.NullInt64
 	var authType string
 
-	err = row.Scan(&user.ID, &email, &user.Username, &passHash, &tgID, &firstName, &lastName, &photoURL, &authType, &roleStr)
+	err = row.Scan(&user.ID, &email, &user.Username, &passHash, &tgID, &firstName, &lastName, &photoURL, &user.Balance, &authType, &roleStr)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)
@@ -270,7 +272,7 @@ func (s *Storage) UserByID(ctx context.Context, id int) (*models.User, error) {
 	const op string = "storage.sqlite.UserByID"
 
 	stmt, err := s.db.Prepare(`
-		SELECT id, email, username, pass_hash, telegram_id, first_name, last_name, photo_url, auth_type 
+		SELECT id, email, username, pass_hash, telegram_id, first_name, last_name, photo_url, balance, auth_type 
 		FROM users WHERE id = ?
 	`)
 	if err != nil {
@@ -285,7 +287,7 @@ func (s *Storage) UserByID(ctx context.Context, id int) (*models.User, error) {
 	var tgID sql.NullInt64
 	var authType string
 
-	err = row.Scan(&user.ID, &email, &user.Username, &passHash, &tgID, &firstName, &lastName, &photoURL, &authType)
+	err = row.Scan(&user.ID, &email, &user.Username, &passHash, &tgID, &firstName, &lastName, &photoURL, &user.Balance, &authType)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)

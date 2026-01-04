@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     telegram_id BIGINT UNIQUE,                   -- Telegram user ID (NULL для email авторизации)
     first_name  VARCHAR(100),                    -- Имя пользователя Telegram
     last_name   VARCHAR(100),                    -- Фамилия пользователя Telegram
-    photo_url   TEXT,                            -- URL фото профиля Telegram
-    avatar_url  VARCHAR(2048) DEFAULT NULL,      -- URL аватарки пользователя (макс 2048 символов)
+    photo_url   VARCHAR(2048) DEFAULT NULL,      -- URL фото профиля Telegram
+    balance     REAL NOT NULL DEFAULT 0.0,       -- Баланс пользователя (float)
     auth_type   VARCHAR(20) NOT NULL DEFAULT 'email', -- 'email' или 'telegram'
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
