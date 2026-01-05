@@ -31,11 +31,6 @@ func New(logger *slog.Logger, cfg *config.Config, service auth.TelegramService) 
 	}
 }
 
-const (
-	botToken  = "YOUR_BOT_TOKEN"
-	publicKey = "YOUR_PUBLIC_KEY"
-)
-
 type User struct {
 	Id        int64  `json:"id"`
 	FirstName string `json:"first_name"`
@@ -51,7 +46,6 @@ type payload struct {
 /*
 https://auth.makhkets.ru/?id=5285375327&first_name=Makhkets%20%F0%9F%97%BD&username=Makhkets&photo_url=https://t.me/i/userpic/320/ZjWaWT3rxUckT5cSElSrVZaJDWrI8ArA1Ovbpoxv3UJBVxlxx75BU1C9GpMBrlBA.jpg&auth_date=1766425258&hash=106e836c6513ad26dfdbcb82471fc77182c8def2d5b9754f6d79701a6acc9384
 https://localhost:8099/callback/telegram/auth?id=5285375327&first_name=Makhkets%20%F0%9F%97%BD&username=Makhkets&photo_url=https://t.me/i/userpic/320/ZjWaWT3rxUckT5cSElSrVZaJDWrI8ArA1Ovbpoxv3UJBVxlxx75BU1C9GpMBrlBA.jpg&auth_date=1766425258&hash=106e836c6513ad26dfdbcb82471fc77182c8def2d5b9754f6d79701a6acc9384
-
 */
 
 func (s *server) TelegramCallbackHandler(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +85,7 @@ func (s *server) TelegramCallbackHandler(w http.ResponseWriter, r *http.Request)
 		Username:   modelAuthorizationData.Username,
 		PhotoURL:   modelAuthorizationData.PhotoURL,
 		AuthDate:   modelAuthorizationData.AuthDate,
-		AppID:      1, // todo example app id
+		AppID:      1,
 	})
 	if err != nil {
 		s.log.Error("Failed to login via Telegram", sl.Err(err))
@@ -99,10 +93,25 @@ func (s *server) TelegramCallbackHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(tokenPair); err != nil {
-		s.log.Error("Failed to encode response", sl.Err(err))
+	// Логируем успешный ответ
+	s.log.Info("Sending token pair response", slog.Any("tokenPair", tokenPair))
+
+	responseData, err := json.Marshal(tokenPair)
+	if err != nil {
+		s.log.Error("Failed to marshal response", sl.Err(err))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+
+	s.log.Info("Response JSON", slog.String("json", string(responseData)))
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(responseData)
+	if err != nil {
+		s.log.Error("Failed to write response", sl.Err(err))
+		return
+	}
+
+	s.log.Info("Response sent successfully")
 }

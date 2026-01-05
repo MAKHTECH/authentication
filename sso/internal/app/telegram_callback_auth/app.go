@@ -24,9 +24,12 @@ func New(log *slog.Logger, cfg *config.Config, service auth.TelegramService) *Ap
 	mux := http.NewServeMux()
 	mux.HandleFunc("/callback/telegram/auth", handlers.TelegramCallbackHandler)
 
+	// CORS middleware
+	corsHandler := corsMiddleware(mux)
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Telegram.CallbackPort),
-		Handler: mux,
+		Handler: corsHandler,
 	}
 
 	return &App{
@@ -34,6 +37,32 @@ func New(log *slog.Logger, cfg *config.Config, service auth.TelegramService) *Ap
 		cfg:    cfg,
 		server: server,
 	}
+}
+
+// corsMiddleware добавляет CORS заголовки ко всем ответам
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			origin = "*"
+		}
+
+		// Устанавливаем CORS заголовки
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization, X-Fingerprint, X-Forwarded-For, X-Requested-With, Origin")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Max-Age", "86400")
+		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
+
+		// Обработка preflight запросов
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (a *App) MustRun() {
