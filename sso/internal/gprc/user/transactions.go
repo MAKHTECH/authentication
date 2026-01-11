@@ -12,11 +12,10 @@ import (
 )
 
 func (s *ServerAPI) GetBalance(ctx context.Context, req *ssov1.GetBalanceRequest) (*ssov1.GetBalanceResponse, error) {
-	// todo обработать ошибки
 	balance, reservedBalance, availableBalance, err := s.UserManagement.GetBalance(ctx, int(ctx.Value("data").(*models.AccessTokenData).UserID))
 	if err != nil {
 		if errors.Is(err, user.ErrUserNotFound) {
-			return nil, status.Errorf(codes.NotFound, "user not found: %v", err)
+			return nil, status.Errorf(codes.NotFound, "user not found")
 		}
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
@@ -25,7 +24,7 @@ func (s *ServerAPI) GetBalance(ctx context.Context, req *ssov1.GetBalanceRequest
 		Balance:          balance,
 		ReservedBalance:  reservedBalance,
 		AvailableBalance: availableBalance,
-	}, nil //
+	}, nil
 }
 
 func (s *ServerAPI) Reserve(ctx context.Context, req *ssov1.ReserveRequest) (*ssov1.ReserveResponse, error) {
@@ -35,6 +34,7 @@ func (s *ServerAPI) Reserve(ctx context.Context, req *ssov1.ReserveRequest) (*ss
 func (s *ServerAPI) Deposit(ctx context.Context, req *ssov1.DepositRequest) (*ssov1.DepositResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Deposit not implemented")
 }
+
 func (s *ServerAPI) GetTransactions(ctx context.Context, req *ssov1.GetTransactionsRequest) (*ssov1.GetTransactionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTransactions not implemented")
 }
@@ -44,6 +44,7 @@ func (s *ServerAPI) GetTransactions(ctx context.Context, req *ssov1.GetTransacti
 func (s *ServerAPI) CommitReserve(ctx context.Context, req *ssov1.CommitReserveRequest) (*ssov1.CommitReserveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CommitReserve not implemented")
 }
+
 func (s *ServerAPI) CancelReserve(ctx context.Context, req *ssov1.CancelReserveRequest) (*ssov1.CancelReserveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelReserve not implemented")
 }

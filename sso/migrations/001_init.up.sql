@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name       VARCHAR(100),                    -- Фамилия пользователя Telegram
     photo_url       VARCHAR(2048) DEFAULT NULL,      -- URL фото профиля Telegram
     balance         BIGINT NOT NULL DEFAULT 0,       -- Баланс пользователя в копейках
-    reserved_balance BIGINT NOT NULL DEFAULT 0,      -- Замороженные средства в копейках
+    reserve_balance BIGINT NOT NULL DEFAULT 0,      -- Замороженные средства в копейках
     auth_type       VARCHAR(20) NOT NULL DEFAULT 'email', -- 'email' или 'telegram'
     role            VARCHAR(20) NOT NULL DEFAULT 'user', -- Роль пользователя: 'user', 'moderator', 'admin', 'service'
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS user_app_roles (
 
 -- ==================== BALANCE TRANSACTIONS ====================
 -- Единая таблица для всех операций с балансом
-CREATE TABLE IF NOT EXISTS balance_transactions (
+CREATE TABLE IF NOT EXISTS transactions (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         BIGINT NOT NULL,                 -- ID пользователя
     app_id          INTEGER NOT NULL,                -- ID приложения
@@ -92,19 +92,37 @@ CREATE TABLE IF NOT EXISTS balance_transactions (
 );
 
 -- Индексы для оптимизации запросов
-CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON balance_transactions(user_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_user_app ON balance_transactions(user_id, app_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_created ON balance_transactions(created_at);
-CREATE INDEX IF NOT EXISTS idx_transactions_type ON balance_transactions(type);
-CREATE INDEX IF NOT EXISTS idx_transactions_reservation ON balance_transactions(reservation_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_idempotency ON balance_transactions(idempotency_key);
+CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_user_app ON transactions(user_id, app_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
+CREATE INDEX IF NOT EXISTS idx_transactions_reservation ON transactions(reservation_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_idempotency ON transactions(idempotency_key);
 
 -- Частичный индекс для активных резервирований
-CREATE INDEX IF NOT EXISTS idx_transactions_pending_reserves ON balance_transactions(user_id, type, expires_at)
+CREATE INDEX IF NOT EXISTS idx_transactions_pending_reserves ON transactions(user_id, type, expires_at)
     WHERE type = 'reserve';
 
 -- Индексы для users
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+
+-- Вставка тестового приложения (только если таблица пуста)
+INSERT INTO apps (name, secret)
+SELECT
+    'test-app-' || substring(md5(random()::text) from 1 for 8),
+    'secret-' || md5(random()::text || clock_timestamp()::text)
+WHERE NOT EXISTS (SELECT 1 FROM apps LIMIT 1);
+
+-- Вставка администратора (только если нет пользователя с username 'admin')
+-- Пароль: admin (bcrypt hash)
+INSERT INTO users (email, pass_hash, username, auth_type, role)
+SELECT
+    'admin@localhost',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMy.MqrqbqeL6VZ5WQXQ4gqkuqL7auGYfnW',
+    'admin',
+    'email',
+    'admin'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
 

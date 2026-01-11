@@ -77,17 +77,16 @@ enum TransactionType {
 
 // ==================== BALANCE OPERATIONS ====================
 // Паттерн двухфазного коммита для работы с балансом:
-// 1. Reserve - замораживает средства (переводит из balance в reserved_balance) + проверка баланса
-// 2. Commit - подтверждает списание (списывает из reserved_balance)
-// 3. Cancel - отменяет резервирование (возвращает из reserved_balance в balance)
+// 1. Reserve - замораживает средства (добавляет amount к reserve_balance)
+// 2. Commit - подтверждает списание (списывает из reserved_balance и balance)
+// 3. Cancel - отменяет резервирование (минусует amount из reserve_balance)
 
 // Резервирование средств (заморозка) - включает проверку баланса
 message ReserveRequest {
-  uint32 user_id = 1;
-  int32 app_id = 2;
-  double amount = 3;
-  string idempotency_key = 4;  // Ключ идемпотентности для предотвращения дублирования
-  string description = 5;      // Описание операции (опционально)
+  int32 app_id = 1;
+  double amount = 2;
+  string idempotency_key = 3;  // Ключ идемпотентности для предотвращения дублирования
+  string description = 4;      // Описание операции (опционально)
 }
 
 message ReserveResponse {
@@ -128,7 +127,6 @@ message CancelReserveResponse {
 
 // Получение баланса пользователя
 message GetBalanceRequest {
-  uint32 user_id = 1;
   int32 app_id = 2;
 }
 

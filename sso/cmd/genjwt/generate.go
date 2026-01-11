@@ -28,7 +28,7 @@ func generateAccessToken(privateKeyHex string) (string, error) {
 
 	v2 := paseto.NewV2()
 	claims := map[string]interface{}{
-		"sub":       1,
+		"sub":       2,
 		"app_id":    1,
 		"username":  "makhkets",
 		"photo_url": "",

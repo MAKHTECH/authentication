@@ -1032,7 +1032,6 @@ func (x *CancelReserveResponse) GetErrorMessage() string {
 // Получение баланса пользователя
 type GetBalanceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	AppId         int32                  `protobuf:"varint,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1066,13 +1065,6 @@ func (x *GetBalanceRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetBalanceRequest.ProtoReflect.Descriptor instead.
 func (*GetBalanceRequest) Descriptor() ([]byte, []int) {
 	return file_sso_user_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *GetBalanceRequest) GetUserId() uint32 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
 }
 
 func (x *GetBalanceRequest) GetAppId() int32 {
@@ -1570,9 +1562,8 @@ const file_sso_user_proto_rawDesc = "" +
 	"\x0freleased_amount\x18\x02 \x01(\x01R\x0ereleasedAmount\x12\x1f\n" +
 	"\vnew_balance\x18\x03 \x01(\x01R\n" +
 	"newBalance\x12#\n" +
-	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"C\n" +
-	"\x11GetBalanceRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\rR\x06userId\x12\x15\n" +
+	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"*\n" +
+	"\x11GetBalanceRequest\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\x05R\x05appId\"\x86\x01\n" +
 	"\x12GetBalanceResponse\x12\x18\n" +
 	"\abalance\x18\x01 \x01(\x01R\abalance\x12)\n" +
