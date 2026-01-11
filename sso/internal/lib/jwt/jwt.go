@@ -40,7 +40,6 @@ func GenerateAccessToken(user *models.User, duration time.Duration, privateKeyHe
 		"username":  user.Username,
 		"photo_url": user.PhotoURL,
 		"role":      int32(user.Role),
-		"balance":   user.Balance,
 		"exp":       time.Now().Add(duration).Unix(),
 	}
 
@@ -143,14 +142,10 @@ func ParseToken(tokenString string, isAccessToken bool, privateKeyHex string) (*
 		if !ok {
 			return nil, fmt.Errorf("отсутствует или неверный role claim")
 		}
-		balance, ok := payload["balance"].(float64)
-		if !ok {
-			return nil, fmt.Errorf("отсутствует или неверный balance claim")
-		}
+
 		data.Username = username
 		data.AppID = int32(appID)
 		data.Role = ssov1.Role(int32(role))
-		data.Balance = balance
 
 		// Email опционален (может отсутствовать для Telegram авторизации)
 		if email, ok := payload["email"].(string); ok {

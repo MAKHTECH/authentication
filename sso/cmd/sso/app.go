@@ -9,6 +9,7 @@ import (
 	"sso/sso/internal/domain/custom_models"
 	"sso/sso/internal/lib/logger/handlers/slogpretty"
 	"sso/sso/pkg/directories"
+	"sso/sso/pkg/migrations"
 	"syscall"
 )
 
@@ -23,6 +24,25 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 	log.Info("starting application", slog.Any("config", cfg))
+
+	// Применяем миграции при старте приложения
+	migrationsPath := directories.FindDirectoryName("migrations")
+	err := migrations.ApplyMigrations(
+		migrations.PostgresConfig{
+			Host:     cfg.Postgres.Host,
+			Port:     cfg.Postgres.Port,
+			User:     cfg.Postgres.User,
+			Password: cfg.Postgres.Password,
+			DBName:   cfg.Postgres.DBName,
+			SSLMode:  cfg.Postgres.SSLMode,
+		},
+		migrationsPath,
+		"migrations",
+	)
+	if err != nil {
+		log.Error("failed to apply migrations", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 
 	application := app.New(log, cfg)
 	go application.GRPCSrv.MustRun()

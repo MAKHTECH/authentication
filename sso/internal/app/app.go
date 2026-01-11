@@ -2,6 +2,8 @@ package app
 
 import (
 	"log/slog"
+	"strconv"
+
 	grpcapp "sso/sso/internal/app/gprc"
 	"sso/sso/internal/app/telegram_callback_auth"
 	"sso/sso/internal/config"
@@ -9,9 +11,8 @@ import (
 	"sso/sso/internal/lib/ratelimiter"
 	"sso/sso/internal/services/auth"
 	"sso/sso/internal/services/user"
+	"sso/sso/internal/storage/postgres"
 	redis "sso/sso/internal/storage/redis"
-	"sso/sso/internal/storage/sqlite"
-	"strconv"
 )
 
 type App struct {
@@ -21,9 +22,13 @@ type App struct {
 
 func New(log *slog.Logger, cfg *config.Config) *App {
 	rStorage := redis.InitRedis(cfg.Redis.DB, cfg.Redis.Host, strconv.Itoa(cfg.Redis.Port))
-	log.Info("Initializing SQLite storage", "path", cfg.StoragePath)
-	storage, err := sqlite.New(cfg.StoragePath)
 
+	log.Info("Initializing PostgreSQL storage",
+		"host", cfg.Postgres.Host,
+		"port", cfg.Postgres.Port,
+		"database", cfg.Postgres.DBName,
+	)
+	storage, err := postgres.New(cfg.Postgres)
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +38,6 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 	if err != nil {
 		panic(err)
 	}
-	//defer kafkaProducer.Close()
 
 	authService := auth.New(
 		log, cfg, kafkaProducer,

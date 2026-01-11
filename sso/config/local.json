@@ -1,7 +1,14 @@
 {
   "env": "local",
   "app_id": 1,
-  "storage_path": "",
+  "postgres": {
+    "host": "postgres",
+    "port": 5432,
+    "user": "sso",
+    "password": "sso_password",
+    "dbname": "sso",
+    "sslmode": "disable"
+  },
   "private_key": "8dfa36aa4bd7b2b67f7d4c262464766af6ef3aea700ca7303eafe61d7af00d008246bf7f2920befe28960654678e9bf0b0e8141910ad74b09f43eae87b7f821b",
   "grpc": {
     "port": 44044,

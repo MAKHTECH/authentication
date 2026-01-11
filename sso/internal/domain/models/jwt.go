@@ -22,7 +22,7 @@ type AccessTokenData struct {
 	Role     ssov1.Role
 	UserID   int64
 	AppID    int32
-	Balance  float64
+	Balance  int64 // баланс в копейках
 	Exp      int64
 }
 

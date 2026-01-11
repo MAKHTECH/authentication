@@ -7,23 +7,34 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sso/sso/pkg/directories"
+	"strconv"
 	"time"
+
+	"sso/sso/pkg/directories"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	Env         string         `json:"env" env-default:"local"`
-	AppID       int            `json:"app_id" env-required:"true"`
-	StoragePath string         `json:"storage_path"`
-	PrivateKey  string         `json:"private_key" env_required:"true"`
-	PublicKey   string         `json:"public_key"` // Вычисляется из private_key
-	Jwt         JwtConfig      `json:"jwt" env-required:"true"`
-	GRPC        GRPCConfig     `json:"grpc"`
-	Telegram    TelegramConfig `json:"telegram"`
-	Redis       RedisConfig    `json:"redis"`
-	Kafka       KafkaConfig    `json:"kafka"`
+	Env        string         `json:"env" env-default:"local"`
+	AppID      int            `json:"app_id" env-required:"true"`
+	Postgres   PostgresConfig `json:"postgres"`
+	PrivateKey string         `json:"private_key" env_required:"true"`
+	PublicKey  string         `json:"public_key"` // Вычисляется из private_key
+	Jwt        JwtConfig      `json:"jwt" env-required:"true"`
+	GRPC       GRPCConfig     `json:"grpc"`
+	Telegram   TelegramConfig `json:"telegram"`
+	Redis      RedisConfig    `json:"redis"`
+	Kafka      KafkaConfig    `json:"kafka"`
+}
+
+type PostgresConfig struct {
+	Host     string `json:"host" env:"POSTGRES_HOST" env-default:"localhost"`
+	Port     int    `json:"port" env:"POSTGRES_PORT" env-default:"5432"`
+	User     string `json:"user" env:"POSTGRES_USER" env-default:"sso"`
+	Password string `json:"password" env:"POSTGRES_PASSWORD" env-default:"sso_password"`
+	DBName   string `json:"dbname" env:"POSTGRES_DB" env-default:"sso"`
+	SSLMode  string `json:"sslmode" env-default:"disable"`
 }
 
 type GRPCConfig struct {
@@ -68,20 +79,31 @@ func MustLoadByPath(path string) *Config {
 	}
 
 	// Переводим в нужные форматы времени
-	//cfg.TokenTTL = time.Duration(time.Hour * cfg.TokenTTL)
 	cfg.GRPC.Timeout = time.Duration(time.Second * cfg.GRPC.Timeout)
 	cfg.Jwt.AccessTokenTTL = time.Duration(time.Minute * cfg.Jwt.AccessTokenTTL)
 	cfg.Jwt.RefreshTokenTTL = time.Duration(time.Minute * cfg.Jwt.RefreshTokenTTL)
 
-	if envStoragePath := os.Getenv("STORAGE_PATH"); envStoragePath != "" {
-		cfg.StoragePath = envStoragePath
-	} else if cfg.StoragePath == "" {
-		databaseDirectory := filepath.Join(directories.FindDirectoryName("cmd"), "../storage/sso.db")
-		cfg.StoragePath = databaseDirectory
+	// Загружаем параметры PostgreSQL из переменных окружения (приоритет над конфигом)
+	if envHost := os.Getenv("POSTGRES_HOST"); envHost != "" {
+		cfg.Postgres.Host = envHost
+	}
+	if envPort := os.Getenv("POSTGRES_PORT"); envPort != "" {
+		if port, err := strconv.Atoi(envPort); err == nil {
+			cfg.Postgres.Port = port
+		}
+	}
+	if envUser := os.Getenv("POSTGRES_USER"); envUser != "" {
+		cfg.Postgres.User = envUser
+	}
+	if envPassword := os.Getenv("POSTGRES_PASSWORD"); envPassword != "" {
+		cfg.Postgres.Password = envPassword
+	}
+	if envDB := os.Getenv("POSTGRES_DB"); envDB != "" {
+		cfg.Postgres.DBName = envDB
 	}
 
-	// Логируем путь к базе данных для отладки
-	fmt.Printf("Database path: %s\n", cfg.StoragePath)
+	// Логируем подключение к базе данных для отладки
+	fmt.Printf("PostgreSQL: %s@%s:%d/%s\n", cfg.Postgres.User, cfg.Postgres.Host, cfg.Postgres.Port, cfg.Postgres.DBName)
 
 	// Проверка и валидация Ed25519 приватного ключа
 	privateKeyBytes, err := hex.DecodeString(cfg.PrivateKey)

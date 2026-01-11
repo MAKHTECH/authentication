@@ -6,7 +6,9 @@ option go_package = "makhkets.go.v1;ssov1";
 
 enum Role {
   USER = 0;
-  ADMIN = 1;
+  MODERATOR = 1;
+  ADMIN = 2;
+  SERVICE = 3;
 }
 
 message AssignRoleRequest {
@@ -55,4 +57,123 @@ message ChangeEmailRequest {
 
 message ChangeEmailResponse {
   string email = 1;
+}
+
+// ==================== BALANCE ENUMS ====================
+
+// Тип транзакции — определяет и тип операции, и статус резервирования
+// RESERVE = резервирование активно (pending)
+// COMMIT = резервирование подтверждено (средства списаны)
+// CANCEL = резервирование отменено (средства разморожены)
+enum TransactionType {
+  TRANSACTION_TYPE_UNSPECIFIED = 0;
+  TRANSACTION_TYPE_DEPOSIT = 1;     // Пополнение баланса
+  TRANSACTION_TYPE_RESERVE = 2;     // Резервирование (заморозка средств)
+  TRANSACTION_TYPE_COMMIT = 3;      // Подтверждение списания зарезервированных средств
+  TRANSACTION_TYPE_CANCEL = 4;      // Отмена резервирования (разморозка)
+  TRANSACTION_TYPE_REFUND = 5;      // Возврат средств
+  TRANSACTION_TYPE_WITHDRAWAL = 6;  // Вывод средств
+}
+
+// ==================== BALANCE OPERATIONS ====================
+// Паттерн двухфазного коммита для работы с балансом:
+// 1. Reserve - замораживает средства (переводит из balance в reserved_balance) + проверка баланса
+// 2. Commit - подтверждает списание (списывает из reserved_balance)
+// 3. Cancel - отменяет резервирование (возвращает из reserved_balance в balance)
+
+// Резервирование средств (заморозка) - включает проверку баланса
+message ReserveRequest {
+  uint32 user_id = 1;
+  int32 app_id = 2;
+  double amount = 3;
+  string idempotency_key = 4;  // Ключ идемпотентности для предотвращения дублирования
+  string description = 5;      // Описание операции (опционально)
+}
+
+message ReserveResponse {
+  bool success = 1;
+  string reservation_id = 2;   // Уникальный ID резервирования для commit/cancel
+  double reserved_amount = 3;  // Зарезервированная сумма
+  double remaining_balance = 4; // Оставшийся доступный баланс
+  string error_message = 5;    // Сообщение об ошибке (если success = false)
+}
+
+// Подтверждение списания (commit)
+message CommitReserveRequest {
+  string reservation_id = 1;   // ID резервирования из ReserveResponse
+  int32 app_id = 2;
+}
+
+message CommitReserveResponse {
+  bool success = 1;
+  double committed_amount = 2;  // Списанная сумма
+  double new_balance = 3;       // Новый баланс после списания
+  string error_message = 4;
+}
+
+// Отмена резервирования (rollback)
+message CancelReserveRequest {
+  string reservation_id = 1;   // ID резервирования из ReserveResponse
+  int32 app_id = 2;
+}
+
+message CancelReserveResponse {
+  bool success = 1;
+  double released_amount = 2;   // Размороженная сумма
+  double new_balance = 3;       // Новый доступный баланс
+  string error_message = 4;
+}
+
+// ==================== BALANCE QUERIES ====================
+
+// Получение баланса пользователя
+message GetBalanceRequest {
+  uint32 user_id = 1;
+  int32 app_id = 2;
+}
+
+message GetBalanceResponse {
+  double balance = 1;           // Общий баланс
+  double reserved_balance = 2;  // Замороженные средства
+  double available_balance = 3; // Доступный баланс (balance - reserved_balance)
+}
+
+// Пополнение баланса (для админов или платежных систем)
+message DepositRequest {
+  uint32 user_id = 1;
+  int32 app_id = 2;
+  double amount = 3;
+  string idempotency_key = 4;
+  string description = 5;
+}
+
+message DepositResponse {
+  bool success = 1;
+  string transaction_id = 2;
+  double new_balance = 3;
+  string error_message = 4;
+}
+
+// История транзакций
+message GetTransactionsRequest {
+  uint32 user_id = 1;
+  int32 app_id = 2;
+  int32 limit = 3;              // Лимит записей (по умолчанию 50)
+  int32 offset = 4;             // Смещение для пагинации
+}
+
+message Transaction {
+  string id = 1;
+  TransactionType type = 2;     // Тип транзакции (enum)
+  double amount = 3;
+  double balance_after = 4;
+  double reserved_after = 5;    // Reserved баланс после операции
+  string description = 6;
+  int64 created_at = 7;         // Unix timestamp
+  string reservation_id = 8;    // ID резервирования (для RESERVE/COMMIT/CANCEL)
+}
+
+message GetTransactionsResponse {
+  repeated Transaction transactions = 1;
+  int32 total_count = 2;
 }

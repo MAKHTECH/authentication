@@ -89,8 +89,7 @@ func (u *User) AssignRole(ctx context.Context, role ssov1.Role, userID, appID in
 }
 
 func (u *User) CheckPermission(ctx context.Context, userID int, appID int) (bool, error) {
-
-	return true, nil
+	return false, nil
 }
 
 func (u *User) ChangePhoto(ctx context.Context, userID int, photoURL string) (bool, error) {
@@ -257,4 +256,30 @@ func (u *User) ChangePassword(ctx context.Context, userID int, newPassword, curr
 
 	log.Info("password changed successfully")
 	return true, nil
+}
+
+func (u *User) GetBalance(ctx context.Context, userID int) (float64, float64, float64, error) {
+	const op = "services.user.GetBalance"
+	log := u.log.With(
+		"operation", op,
+		"userID", userID,
+	)
+
+	log.Info("get user")
+
+	// Получаем пользователя
+	user, err := u.db.UserByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			log.Warn("user not found", "userID", userID)
+			return 0, 0, 0, ErrUserNotFound
+		}
+		log.Error("failed to get user", sl.Err(err))
+		return 0, 0, 0, err
+	}
+
+	// Конвертируем из копеек в рубли для gRPC ответа
+	return models.CopecksToRubles(user.Balance),
+		models.CopecksToRubles(user.ReservedBalance),
+		models.CopecksToRubles(user.AvailableBalance()), nil
 }

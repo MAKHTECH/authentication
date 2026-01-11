@@ -22,13 +22,16 @@ docker-dev-rebuild:
 docker-dev-down:
 	docker compose -f ../deployments/docker/docker-compose.dev.yml down
 
+database:
+	docker compose -f ../deployments/docker/docker-compose.dev.yml exec -it postgres psql -U sso -d sso
+
+# Миграции через мигратор для PostgreSQL
 migrate:
-	go run ./cmd/migrator --storage-path=./storage/sso.db --migrations-path=./migrations
+	go run ./cmd/migrator --migrations-path=./migrations
 
-
-# Вход в SQLite через Docker контейнер
-sqlite-docker:
-	docker compose -f ../deployments/docker/docker-compose.dev.yml exec app sqlite3 /app/sso/storage/sso.db
+# Подключение к PostgreSQL через Docker контейнер
+psql-docker:
+	docker compose -f ../deployments/docker/docker-compose.dev.yml exec postgres psql -U sso -d sso
 
 generate:
 	protoc -I ../protos/proto --go_out=../protos/gen/go/ --go_opt=paths=source_relative --go-grpc_out=../protos/gen/go/ --go-grpc_opt=paths=source_relative ../protos/proto/sso/*.proto

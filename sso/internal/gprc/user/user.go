@@ -23,6 +23,8 @@ type UserManagement interface {
 	ChangeUsername(ctx context.Context, userID int, username string) (string, error)
 	ChangeEmail(ctx context.Context, userID int, newEmail string) (string, error)
 	ChangePassword(ctx context.Context, userID int, newPassword, currentPassword string) (bool, error)
+
+	GetBalance(ctx context.Context, userID int) (float64, float64, float64, error)
 }
 
 type ServerAPI struct {
@@ -32,44 +34,6 @@ type ServerAPI struct {
 
 func Register(gRPC *grpc.Server, UserManagement UserManagement) {
 	ssov1.RegisterUserServer(gRPC, &ServerAPI{UserManagement: UserManagement})
-}
-
-// AssignRole assigns a role to a user
-// Metadata: access_token: <token>
-func (s *ServerAPI) AssignRole(ctx context.Context, req *ssov1.AssignRoleRequest) (*ssov1.AssignRoleResponse, error) {
-	userData := ctx.Value("data").(*models.AccessTokenData)
-	if userData.Role != ssov1.Role_ADMIN {
-		return nil, status.Errorf(codes.PermissionDenied, "only admin can assign roles")
-	}
-	// validation
-	userID := req.GetUserId()
-	role := req.GetRole()
-
-	// Валидация userID (uint32)
-	if err := validation.Validate(userID,
-		validation.Required, // Обязательное поле
-	); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
-	}
-
-	//Валидация role с динамическим списком значений
-	if err := validation.Validate(role,
-		validation.Required,
-		validation.In(utils.GetValidRoles()...), // Распаковываем срез в аргументы
-	); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid role: %v", err)
-	}
-
-	ok, err := s.UserManagement.AssignRole(ctx, role, int(userID), int(req.GetAppId()))
-	if err != nil {
-		if errors.Is(err, user.ErrUserRoleExists) {
-			return nil, status.Errorf(codes.AlreadyExists, user.ErrUserRoleExists.Error())
-		}
-
-		return nil, status.Errorf(codes.Internal, "internal error")
-	}
-
-	return &ssov1.AssignRoleResponse{Success: ok}, nil
 }
 
 func (s *ServerAPI) ChangeAvatar(ctx context.Context, req *ssov1.ChangeAvatarRequest) (*ssov1.ChangeAvatarResponse, error) {

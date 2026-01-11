@@ -3,9 +3,9 @@
 # Development Dockerfile с Air для hot reload
 FROM golang:1.25-alpine
 
-# Устанавливаем зависимости для CGO (необходимы для SQLite) и air
+# Устанавливаем зависимости для git, air и CGO (gcc для lib/pq)
 RUN --mount=type=cache,target=/var/cache/apk \
-    apk add --no-cache gcc musl-dev sqlite-dev git
+    apk add --no-cache git gcc musl-dev
 
 # Устанавливаем Air для hot reload
 RUN go install github.com/air-verse/air@latest
