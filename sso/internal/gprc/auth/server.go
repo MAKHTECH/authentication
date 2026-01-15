@@ -15,22 +15,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Auth interface {
-	Login(ctx context.Context, user models.AuthUser) (tokenPair *models.TokenPair, err error)
-	Logout(ctx context.Context, accessToken string) (bool, error)
-
-	RefreshToken(ctx context.Context, refreshToken string) (*models.TokenPair, error)
-	RegisterNewUser(ctx context.Context, user models.AuthUser) (tokenPair *models.TokenPair, err error)
-
-	GetDevices(ctx context.Context, userID int32) ([]*models.RefreshSession, error)
-}
-
 type ServerAPI struct {
-	ssov1.UnimplementedAuthServer
-	auth Auth
+	ssov1.AuthServer
+	auth auth.Auth
 }
 
-func Register(gRPC *grpc.Server, auth Auth) {
+func Register(gRPC *grpc.Server, auth auth.Auth) {
 	ssov1.RegisterAuthServer(gRPC, &ServerAPI{auth: auth})
 }
 

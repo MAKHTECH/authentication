@@ -15,24 +15,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type UserManagement interface {
-	AssignRole(ctx context.Context, role ssov1.Role, userID, appID int) (bool, error)
-	CheckPermission(ctx context.Context, userID int, appID int) (bool, error)
-
-	ChangePhoto(ctx context.Context, userID int, photoURL string) (bool, error)
-	ChangeUsername(ctx context.Context, userID int, username string) (string, error)
-	ChangeEmail(ctx context.Context, userID int, newEmail string) (string, error)
-	ChangePassword(ctx context.Context, userID int, newPassword, currentPassword string) (bool, error)
-
-	GetBalance(ctx context.Context, userID int) (float64, float64, float64, error)
-}
-
 type ServerAPI struct {
 	ssov1.UserServer
-	UserManagement UserManagement
+	UserManagement user.UserManagement
 }
 
-func Register(gRPC *grpc.Server, UserManagement UserManagement) {
+func Register(gRPC *grpc.Server, UserManagement user.UserManagement) {
 	ssov1.RegisterUserServer(gRPC, &ServerAPI{UserManagement: UserManagement})
 }
 

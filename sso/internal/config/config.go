@@ -16,16 +16,24 @@ import (
 )
 
 type Config struct {
-	Env        string         `json:"env" env-default:"local"`
-	AppID      int            `json:"app_id" env-required:"true"`
-	Postgres   PostgresConfig `json:"postgres"`
-	PrivateKey string         `json:"private_key" env_required:"true"`
-	PublicKey  string         `json:"public_key"` // Вычисляется из private_key
-	Jwt        JwtConfig      `json:"jwt" env-required:"true"`
-	GRPC       GRPCConfig     `json:"grpc"`
-	Telegram   TelegramConfig `json:"telegram"`
-	Redis      RedisConfig    `json:"redis"`
-	Kafka      KafkaConfig    `json:"kafka"`
+	Env         string            `json:"env" env-default:"local"`
+	AppID       int               `json:"app_id" env-required:"true"`
+	Idempotency IdempotencyConfig `json:"idempotency"`
+	Postgres    PostgresConfig    `json:"postgres"`
+	PrivateKey  string            `json:"private_key" env_required:"true"`
+	PublicKey   string            `json:"public_key"` // Вычисляется из private_key
+	Jwt         JwtConfig         `json:"jwt" env-required:"true"`
+	GRPC        GRPCConfig        `json:"grpc"`
+	Telegram    TelegramConfig    `json:"telegram"`
+	Redis       RedisConfig       `json:"redis"`
+	Kafka       KafkaConfig       `json:"kafka"`
+	Cron        CronConfig        `json:"cron"`
+}
+
+type IdempotencyConfig struct {
+	ProcessingTTL time.Duration `json:"processing_ttl_minutes"` // TTL для PROCESSING (5 минут)
+	SuccessTTL    time.Duration `json:"success_ttl_minutes"`    // TTL для SUCCESS (24h = 1440 минут)
+	FailedTTL     time.Duration `json:"failed_ttl_minutes"`     // TTL для FAILED (5 минут)
 }
 
 type PostgresConfig struct {
@@ -62,6 +70,11 @@ type KafkaConfig struct {
 	Brokers []string `json:"brokers"`
 }
 
+type CronConfig struct {
+	ExpiredReservationsInterval  time.Duration `json:"expired_reservations_interval_seconds"` // Интервал проверки (в секундах)
+	ExpiredReservationsBatchSize int           `json:"expired_reservations_batch_size"`       // Размер батча
+}
+
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {
@@ -82,6 +95,31 @@ func MustLoadByPath(path string) *Config {
 	cfg.GRPC.Timeout = time.Duration(time.Second * cfg.GRPC.Timeout)
 	cfg.Jwt.AccessTokenTTL = time.Duration(time.Minute * cfg.Jwt.AccessTokenTTL)
 	cfg.Jwt.RefreshTokenTTL = time.Duration(time.Minute * cfg.Jwt.RefreshTokenTTL)
+
+	// Idempotency TTL с дефолтами (в минутах → конвертируем в Duration)
+	if cfg.Idempotency.ProcessingTTL == 0 {
+		cfg.Idempotency.ProcessingTTL = 5 // 5 минут по умолчанию
+	}
+	cfg.Idempotency.ProcessingTTL = time.Duration(time.Minute * cfg.Idempotency.ProcessingTTL)
+
+	if cfg.Idempotency.SuccessTTL == 0 {
+		cfg.Idempotency.SuccessTTL = 1440 // 24h по умолчанию
+	}
+	cfg.Idempotency.SuccessTTL = time.Duration(time.Minute * cfg.Idempotency.SuccessTTL)
+
+	if cfg.Idempotency.FailedTTL == 0 {
+		cfg.Idempotency.FailedTTL = 5 // 5 минут по умолчанию
+	}
+	cfg.Idempotency.FailedTTL = time.Duration(time.Minute * cfg.Idempotency.FailedTTL)
+
+	// Cron config с дефолтами
+	if cfg.Cron.ExpiredReservationsInterval == 0 {
+		cfg.Cron.ExpiredReservationsInterval = 30 // 30 секунд по умолчанию
+	}
+	cfg.Cron.ExpiredReservationsInterval = time.Duration(time.Second * cfg.Cron.ExpiredReservationsInterval)
+	if cfg.Cron.ExpiredReservationsBatchSize == 0 {
+		cfg.Cron.ExpiredReservationsBatchSize = 100 // 100 записей по умолчанию
+	}
 
 	// Загружаем параметры PostgreSQL из переменных окружения (приоритет над конфигом)
 	if envHost := os.Getenv("POSTGRES_HOST"); envHost != "" {

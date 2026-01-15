@@ -10,18 +10,28 @@ import (
 	user_jwt "sso/sso/internal/lib/jwt"
 	"sso/sso/internal/lib/kafka"
 	"sso/sso/internal/lib/logger/sl"
-	"sso/sso/internal/storage"
+	"sso/sso/internal/repository"
 	"sso/sso/pkg/utils"
 	"strconv"
 	"time"
 )
 
-type Auth struct {
+type Auth interface {
+	Login(ctx context.Context, user models.AuthUser) (tokenPair *models.TokenPair, err error)
+	Logout(ctx context.Context, accessToken string) (bool, error)
+
+	RefreshToken(ctx context.Context, refreshToken string) (*models.TokenPair, error)
+	RegisterNewUser(ctx context.Context, user models.AuthUser) (tokenPair *models.TokenPair, err error)
+
+	GetDevices(ctx context.Context, userID int32) ([]*models.RefreshSession, error)
+}
+
+type auth struct {
 	log             *slog.Logger
-	usrSaver        UserSaver
-	usrProvider     UserProvider
-	appProvider     AppProvider
-	sessionProvider SessionsProvider
+	usrSaver        repository.AuthRepository
+	usrProvider     repository.AuthRepository
+	appProvider     repository.AppRepository
+	sessionProvider repository.SessionRepository
 	cfg             *config.Config
 	producer        *kafka.Producer
 }
@@ -38,57 +48,16 @@ type TelegramService interface {
 	LoginTelegram(ctx context.Context, telegramUser models.TelegramAuthUser) (*models.TokenPair, error)
 }
 
-type UserSaver interface {
-	SaveUser(
-		ctx context.Context,
-		email string,
-		username string,
-		passHash string,
-	) (uid int64, err error)
-	SaveTelegramUser(
-		ctx context.Context,
-		telegramID int64,
-		username string,
-		firstName string,
-		lastName string,
-		photoURL string,
-	) (uid int64, err error)
-	UpdateTelegramUser(
-		ctx context.Context,
-		telegramID int64,
-		username string,
-		firstName string,
-		lastName string,
-		photoURL string,
-	) error
-}
-
-type SessionsProvider interface {
-	SaveRefreshSession(ctx context.Context, rs *models.RefreshSession, refreshTTL time.Duration) error
-	GetRefreshSession(ctx context.Context, fingerprint string) (*models.RefreshSession, error)
-	GetRefreshSessionsByUserId(ctx context.Context, id string) ([]*models.RefreshSession, error)
-	DeleteRefreshSession(ctx context.Context, fingerprint, id string) error
-}
-
-type UserProvider interface {
-	User(ctx context.Context, username string, appID int) (*models.User, error)
-	UserByID(ctx context.Context, id int) (*models.User, error)
-	UserByTelegramID(ctx context.Context, telegramID int64, appID int) (*models.User, error)
-
-	//CheckUserPermission(ctx context.Context, userID int, appID int32, permission string) error
-}
-
-type AppProvider interface {
-	App(ctx context.Context, appID int32) (models.App, error)
-}
-
 func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	producer *kafka.Producer,
-	userSaver UserSaver, userProvider UserProvider, appProvider AppProvider, sessionProvider SessionsProvider,
-) *Auth {
-	return &Auth{
+	userSaver repository.AuthRepository,
+	userProvider repository.AuthRepository,
+	appProvider repository.AppRepository,
+	sessionProvider repository.SessionRepository,
+) *auth {
+	return &auth{
 		log:             log,
 		usrSaver:        userSaver,
 		usrProvider:     userProvider,
@@ -99,7 +68,7 @@ func New(
 	}
 }
 
-func (a *Auth) Login(ctx context.Context, user models.AuthUser) (*models.TokenPair, error) {
+func (a *auth) Login(ctx context.Context, user models.AuthUser) (*models.TokenPair, error) {
 	const op = "auth.Login"
 
 	log := a.log.With(
@@ -118,7 +87,7 @@ func (a *Auth) Login(ctx context.Context, user models.AuthUser) (*models.TokenPa
 	// Check App ID
 	app, err := a.appProvider.App(ctx, user.AppID)
 	if err != nil {
-		if errors.Is(err, storage.ErrAppNotFound) {
+		if errors.Is(err, repository.ErrAppNotFound) {
 			log.Warn("invalid app id", sl.Err(err))
 			return nil, ErrInvalidApp
 		}
@@ -129,7 +98,7 @@ func (a *Auth) Login(ctx context.Context, user models.AuthUser) (*models.TokenPa
 
 	userObj, err := a.usrProvider.User(ctx, user.Username, int(user.AppID))
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			a.log.Warn("user not found", sl.Err(err))
 			return nil, ErrUserNotFound
 		}
@@ -190,7 +159,7 @@ func (a *Auth) Login(ctx context.Context, user models.AuthUser) (*models.TokenPa
 	}, nil
 }
 
-func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*models.TokenPair, error) {
+func (a *auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*models.TokenPair, error) {
 	const op = "auth.RegisterNewUser"
 
 	log := a.log.With(
@@ -208,7 +177,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*mode
 	// Check App ID
 	app, err := a.appProvider.App(ctx, user.AppID)
 	if err != nil {
-		if errors.Is(err, storage.ErrAppNotFound) {
+		if errors.Is(err, repository.ErrAppNotFound) {
 			log.Warn("invalid app id", sl.Err(err))
 			return nil, fmt.Errorf("%s: %w", op, ErrInvalidApp)
 		}
@@ -223,7 +192,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*mode
 	id, err := a.usrSaver.SaveUser(ctx, user.Email, user.Username, hashPassword)
 
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExists) {
+		if errors.Is(err, repository.ErrUserExists) {
 			log.Warn("user already exists", sl.Err(err))
 
 			return nil, ErrUserExists
@@ -268,7 +237,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, user models.AuthUser) (*mode
 	return tokenPair, nil
 }
 
-func (a *Auth) RefreshToken(ctx context.Context, refreshToken string) (*models.TokenPair, error) {
+func (a *auth) RefreshToken(ctx context.Context, refreshToken string) (*models.TokenPair, error) {
 	const op = "auth.RefreshToken"
 
 	log := a.log.With(
@@ -300,7 +269,7 @@ func (a *Auth) RefreshToken(ctx context.Context, refreshToken string) (*models.T
 	idToInt, _ := strconv.ParseInt(rs.UserId, 10, 64)
 	userObj, err := a.usrProvider.UserByID(ctx, int(idToInt))
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrUserNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -332,7 +301,7 @@ func (a *Auth) RefreshToken(ctx context.Context, refreshToken string) (*models.T
 	return tokenPair, nil
 }
 
-func (a *Auth) Logout(ctx context.Context, accessToken string) (bool, error) {
+func (a *auth) Logout(ctx context.Context, accessToken string) (bool, error) {
 	const op = "auth.Logout"
 
 	log := a.log.With(
@@ -360,7 +329,7 @@ func (a *Auth) Logout(ctx context.Context, accessToken string) (bool, error) {
 	return true, nil
 }
 
-func (a *Auth) GetDevices(ctx context.Context, userID int32) ([]*models.RefreshSession, error) {
+func (a *auth) GetDevices(ctx context.Context, userID int32) ([]*models.RefreshSession, error) {
 	const op = "auth.GetDevices"
 
 	log := a.log.With(
@@ -381,7 +350,7 @@ func (a *Auth) GetDevices(ctx context.Context, userID int32) ([]*models.RefreshS
 
 // LoginTelegram авторизует пользователя через Telegram.
 // Если пользователь не найден, создает нового.
-func (a *Auth) LoginTelegram(ctx context.Context, telegramUser models.TelegramAuthUser) (*models.TokenPair, error) {
+func (a *auth) LoginTelegram(ctx context.Context, telegramUser models.TelegramAuthUser) (*models.TokenPair, error) {
 	const op = "auth.LoginTelegram"
 
 	log := a.log.With(
@@ -401,7 +370,7 @@ func (a *Auth) LoginTelegram(ctx context.Context, telegramUser models.TelegramAu
 	// Проверяем App ID
 	app, err := a.appProvider.App(ctx, telegramUser.AppID)
 	if err != nil {
-		if errors.Is(err, storage.ErrAppNotFound) {
+		if errors.Is(err, repository.ErrAppNotFound) {
 			log.Warn("invalid app id", sl.Err(err))
 			return nil, ErrInvalidApp
 		}
@@ -413,7 +382,7 @@ func (a *Auth) LoginTelegram(ctx context.Context, telegramUser models.TelegramAu
 	// Пытаемся найти пользователя по Telegram ID
 	userObj, err := a.usrProvider.UserByTelegramID(ctx, telegramUser.TelegramID, int(telegramUser.AppID))
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			// Пользователь не найден - регистрируем нового
 			log.Info("telegram user not found, creating new user")
 			return a.registerTelegramUser(ctx, telegramUser, fingerprint, clientIp, userAgent)
@@ -464,7 +433,7 @@ func (a *Auth) LoginTelegram(ctx context.Context, telegramUser models.TelegramAu
 }
 
 // registerTelegramUser регистрирует нового пользователя через Telegram
-func (a *Auth) registerTelegramUser(ctx context.Context, telegramUser models.TelegramAuthUser, fingerprint, clientIp, userAgent string) (*models.TokenPair, error) {
+func (a *auth) registerTelegramUser(ctx context.Context, telegramUser models.TelegramAuthUser, fingerprint, clientIp, userAgent string) (*models.TokenPair, error) {
 	const op = "auth.registerTelegramUser"
 
 	log := a.log.With(
@@ -476,7 +445,7 @@ func (a *Auth) registerTelegramUser(ctx context.Context, telegramUser models.Tel
 	id, err := a.usrSaver.SaveTelegramUser(ctx, telegramUser.TelegramID,
 		telegramUser.Username, telegramUser.FirstName, telegramUser.LastName, telegramUser.PhotoURL)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExists) {
+		if errors.Is(err, repository.ErrUserExists) {
 			log.Warn("telegram user already exists", sl.Err(err))
 			return nil, fmt.Errorf("%s: %w", op, ErrUserExists)
 		}

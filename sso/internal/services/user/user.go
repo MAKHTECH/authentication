@@ -7,17 +7,27 @@ import (
 	"regexp"
 	ssov1 "sso/protos/gen/go/sso"
 	"sso/sso/internal/config"
-	"sso/sso/internal/domain/models"
 	"sso/sso/internal/lib/logger/sl"
-	"sso/sso/internal/storage"
+	"sso/sso/internal/repository"
 	"sso/sso/pkg/utils"
-	"time"
 )
+
+type UserManagement interface {
+	AssignRole(ctx context.Context, role ssov1.Role, userID, appID int) (bool, error)
+	CheckPermission(ctx context.Context, userID int, appID int) (bool, error)
+
+	ChangePhoto(ctx context.Context, userID int, photoURL string) (bool, error)
+	ChangeUsername(ctx context.Context, userID int, username string) (string, error)
+	ChangeEmail(ctx context.Context, userID int, newEmail string) (string, error)
+	ChangePassword(ctx context.Context, userID int, newPassword, currentPassword string) (bool, error)
+
+	GetBalance(ctx context.Context, userID int) (int64, int64, int64, error)
+}
 
 type User struct {
 	log *slog.Logger
-	db  DB
-	rdb RDB
+	db  repository.UserRepository
+	rdb repository.SessionRepository
 	cfg *config.Config
 }
 
@@ -34,27 +44,7 @@ var (
 	ErrWrongCurrentPassword = errors.New("current password is incorrect")
 )
 
-type DB interface {
-	CheckPermission(ctx context.Context, userID int, appID int) error
-	AssignRole(ctx context.Context, userID uint32, appID int, role ssov1.Role) error
-
-	ChangePhoto(ctx context.Context, userID int, photoURL string) error
-
-	ChangeUsername(ctx context.Context, userID int, username string) error
-	ChangeEmail(ctx context.Context, userID int, newEmail string) error
-	ChangePassword(ctx context.Context, userID int, newPassword string) error
-
-	UserByID(ctx context.Context, id int) (*models.User, error)
-}
-
-type RDB interface {
-	SaveRefreshSession(ctx context.Context, rs *models.RefreshSession, refreshTTL time.Duration) error
-	GetRefreshSession(ctx context.Context, fingerprint string) (*models.RefreshSession, error)
-	GetRefreshSessionsByUserId(ctx context.Context, id string) ([]*models.RefreshSession, error)
-	DeleteRefreshSession(ctx context.Context, fingerprint, id string) error
-}
-
-func New(log *slog.Logger, db DB, rdb RDB, cfg *config.Config) *User {
+func New(log *slog.Logger, db repository.UserRepository, rdb repository.SessionRepository, cfg *config.Config) *User {
 	return &User{
 		log: log,
 		db:  db,
@@ -77,7 +67,7 @@ func (u *User) AssignRole(ctx context.Context, role ssov1.Role, userID, appID in
 
 	err := u.db.AssignRole(ctx, uint32(userID), appID, role)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserRoleExists) {
+		if errors.Is(err, repository.ErrUserRoleExists) {
 			return false, ErrUserRoleExists
 		}
 
@@ -110,7 +100,7 @@ func (u *User) ChangePhoto(ctx context.Context, userID int, photoURL string) (bo
 
 	err := u.db.ChangePhoto(ctx, userID, photoURL)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			log.Warn("user not found", "userID", userID)
 			return false, ErrUserNotFound
 		}
@@ -141,10 +131,10 @@ func (u *User) ChangeUsername(ctx context.Context, userID int, username string) 
 	// меняем username
 	err := u.db.ChangeUsername(ctx, userID, username)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			log.Warn("user not found", "userID", userID)
 			return "", ErrUserNotFound
-		} else if errors.Is(err, storage.ErrUsernameUnique) {
+		} else if errors.Is(err, repository.ErrUsernameUnique) {
 			log.Warn("username already taken", "username", username)
 			return "", ErrUsernameUnique
 		}
@@ -180,10 +170,10 @@ func (u *User) ChangeEmail(ctx context.Context, userID int, newEmail string) (st
 
 	err := u.db.ChangeEmail(ctx, userID, newEmail)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			log.Warn("user not found", "userID", userID)
 			return "", ErrUserNotFound
-		} else if errors.Is(err, storage.ErrEmailUnique) {
+		} else if errors.Is(err, repository.ErrEmailUnique) {
 			log.Warn("email already taken", "email", newEmail)
 			return "", ErrEmailUnique
 		}
@@ -220,7 +210,7 @@ func (u *User) ChangePassword(ctx context.Context, userID int, newPassword, curr
 	// Получаем пользователя для проверки текущего пароля
 	user, err := u.db.UserByID(ctx, userID)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			log.Warn("user not found", "userID", userID)
 			return false, ErrUserNotFound
 		}
@@ -245,7 +235,7 @@ func (u *User) ChangePassword(ctx context.Context, userID int, newPassword, curr
 
 	err = u.db.ChangePassword(ctx, userID, passHash)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			log.Warn("user not found", "userID", userID)
 			return false, ErrUserNotFound
 		}
@@ -258,7 +248,7 @@ func (u *User) ChangePassword(ctx context.Context, userID int, newPassword, curr
 	return true, nil
 }
 
-func (u *User) GetBalance(ctx context.Context, userID int) (float64, float64, float64, error) {
+func (u *User) GetBalance(ctx context.Context, userID int) (int64, int64, int64, error) {
 	const op = "services.user.GetBalance"
 	log := u.log.With(
 		"operation", op,
@@ -270,7 +260,7 @@ func (u *User) GetBalance(ctx context.Context, userID int) (float64, float64, fl
 	// Получаем пользователя
 	user, err := u.db.UserByID(ctx, userID)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			log.Warn("user not found", "userID", userID)
 			return 0, 0, 0, ErrUserNotFound
 		}
@@ -279,7 +269,7 @@ func (u *User) GetBalance(ctx context.Context, userID int) (float64, float64, fl
 	}
 
 	// Конвертируем из копеек в рубли для gRPC ответа
-	return models.CopecksToRubles(user.Balance),
-		models.CopecksToRubles(user.ReservedBalance),
-		models.CopecksToRubles(user.AvailableBalance()), nil
+	return user.Balance,
+		user.ReservedBalance,
+		user.AvailableBalance(), nil
 }

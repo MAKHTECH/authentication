@@ -283,37 +283,20 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	User_AssignRole_FullMethodName      = "/auth.User/AssignRole"
-	User_Reserve_FullMethodName         = "/auth.User/Reserve"
-	User_CommitReserve_FullMethodName   = "/auth.User/CommitReserve"
-	User_CancelReserve_FullMethodName   = "/auth.User/CancelReserve"
-	User_GetBalance_FullMethodName      = "/auth.User/GetBalance"
-	User_Deposit_FullMethodName         = "/auth.User/Deposit"
-	User_GetTransactions_FullMethodName = "/auth.User/GetTransactions"
-	User_ChangeAvatar_FullMethodName    = "/auth.User/ChangeAvatar"
-	User_ChangeUsername_FullMethodName  = "/auth.User/ChangeUsername"
-	User_ChangePassword_FullMethodName  = "/auth.User/ChangePassword"
-	User_ChangeEmail_FullMethodName     = "/auth.User/ChangeEmail"
+	User_AssignRole_FullMethodName     = "/auth.User/AssignRole"
+	User_ChangeAvatar_FullMethodName   = "/auth.User/ChangeAvatar"
+	User_ChangeUsername_FullMethodName = "/auth.User/ChangeUsername"
+	User_ChangePassword_FullMethodName = "/auth.User/ChangePassword"
+	User_ChangeEmail_FullMethodName    = "/auth.User/ChangeEmail"
 )
 
 // UserClient is the client API for User service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
+	// --- FOR ADMIN ---
 	// Назначение роли пользователю (для админов)
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
-	// Резервирование (заморозка) средств - включает проверку баланса
-	Reserve(ctx context.Context, in *ReserveRequest, opts ...grpc.CallOption) (*ReserveResponse, error)
-	// Подтверждение списания зарезервированных средств
-	CommitReserve(ctx context.Context, in *CommitReserveRequest, opts ...grpc.CallOption) (*CommitReserveResponse, error)
-	// Отмена резервирования (разморозка средств)
-	CancelReserve(ctx context.Context, in *CancelReserveRequest, opts ...grpc.CallOption) (*CancelReserveResponse, error)
-	// Получение баланса пользователя
-	GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceResponse, error)
-	// Пополнение баланса (для платежных систем / админов)
-	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error)
-	// История транзакций пользователя
-	GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error)
 	// --- FOR USER ---
 	ChangeAvatar(ctx context.Context, in *ChangeAvatarRequest, opts ...grpc.CallOption) (*ChangeAvatarResponse, error)
 	ChangeUsername(ctx context.Context, in *ChangeUsernameRequest, opts ...grpc.CallOption) (*ChangeUsernameResponse, error)
@@ -333,66 +316,6 @@ func (c *userClient) AssignRole(ctx context.Context, in *AssignRoleRequest, opts
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AssignRoleResponse)
 	err := c.cc.Invoke(ctx, User_AssignRole_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) Reserve(ctx context.Context, in *ReserveRequest, opts ...grpc.CallOption) (*ReserveResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ReserveResponse)
-	err := c.cc.Invoke(ctx, User_Reserve_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) CommitReserve(ctx context.Context, in *CommitReserveRequest, opts ...grpc.CallOption) (*CommitReserveResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CommitReserveResponse)
-	err := c.cc.Invoke(ctx, User_CommitReserve_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) CancelReserve(ctx context.Context, in *CancelReserveRequest, opts ...grpc.CallOption) (*CancelReserveResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CancelReserveResponse)
-	err := c.cc.Invoke(ctx, User_CancelReserve_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetBalanceResponse)
-	err := c.cc.Invoke(ctx, User_GetBalance_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DepositResponse)
-	err := c.cc.Invoke(ctx, User_Deposit_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetTransactionsResponse)
-	err := c.cc.Invoke(ctx, User_GetTransactions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -443,20 +366,9 @@ func (c *userClient) ChangeEmail(ctx context.Context, in *ChangeEmailRequest, op
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
 type UserServer interface {
+	// --- FOR ADMIN ---
 	// Назначение роли пользователю (для админов)
 	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
-	// Резервирование (заморозка) средств - включает проверку баланса
-	Reserve(context.Context, *ReserveRequest) (*ReserveResponse, error)
-	// Подтверждение списания зарезервированных средств
-	CommitReserve(context.Context, *CommitReserveRequest) (*CommitReserveResponse, error)
-	// Отмена резервирования (разморозка средств)
-	CancelReserve(context.Context, *CancelReserveRequest) (*CancelReserveResponse, error)
-	// Получение баланса пользователя
-	GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceResponse, error)
-	// Пополнение баланса (для платежных систем / админов)
-	Deposit(context.Context, *DepositRequest) (*DepositResponse, error)
-	// История транзакций пользователя
-	GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error)
 	// --- FOR USER ---
 	ChangeAvatar(context.Context, *ChangeAvatarRequest) (*ChangeAvatarResponse, error)
 	ChangeUsername(context.Context, *ChangeUsernameRequest) (*ChangeUsernameResponse, error)
@@ -474,24 +386,6 @@ type UnimplementedUserServer struct{}
 
 func (UnimplementedUserServer) AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AssignRole not implemented")
-}
-func (UnimplementedUserServer) Reserve(context.Context, *ReserveRequest) (*ReserveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Reserve not implemented")
-}
-func (UnimplementedUserServer) CommitReserve(context.Context, *CommitReserveRequest) (*CommitReserveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CommitReserve not implemented")
-}
-func (UnimplementedUserServer) CancelReserve(context.Context, *CancelReserveRequest) (*CancelReserveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CancelReserve not implemented")
-}
-func (UnimplementedUserServer) GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetBalance not implemented")
-}
-func (UnimplementedUserServer) Deposit(context.Context, *DepositRequest) (*DepositResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Deposit not implemented")
-}
-func (UnimplementedUserServer) GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetTransactions not implemented")
 }
 func (UnimplementedUserServer) ChangeAvatar(context.Context, *ChangeAvatarRequest) (*ChangeAvatarResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ChangeAvatar not implemented")
@@ -540,114 +434,6 @@ func _User_AssignRole_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).AssignRole(ctx, req.(*AssignRoleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_Reserve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReserveRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).Reserve(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_Reserve_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Reserve(ctx, req.(*ReserveRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_CommitReserve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CommitReserveRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).CommitReserve(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_CommitReserve_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).CommitReserve(ctx, req.(*CommitReserveRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_CancelReserve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CancelReserveRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).CancelReserve(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_CancelReserve_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).CancelReserve(ctx, req.(*CancelReserveRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_GetBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetBalanceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).GetBalance(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_GetBalance_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetBalance(ctx, req.(*GetBalanceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_Deposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DepositRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).Deposit(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_Deposit_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Deposit(ctx, req.(*DepositRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_GetTransactions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTransactionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).GetTransactions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_GetTransactions_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetTransactions(ctx, req.(*GetTransactionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -736,30 +522,6 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_AssignRole_Handler,
 		},
 		{
-			MethodName: "Reserve",
-			Handler:    _User_Reserve_Handler,
-		},
-		{
-			MethodName: "CommitReserve",
-			Handler:    _User_CommitReserve_Handler,
-		},
-		{
-			MethodName: "CancelReserve",
-			Handler:    _User_CancelReserve_Handler,
-		},
-		{
-			MethodName: "GetBalance",
-			Handler:    _User_GetBalance_Handler,
-		},
-		{
-			MethodName: "Deposit",
-			Handler:    _User_Deposit_Handler,
-		},
-		{
-			MethodName: "GetTransactions",
-			Handler:    _User_GetTransactions_Handler,
-		},
-		{
 			MethodName: "ChangeAvatar",
 			Handler:    _User_ChangeAvatar_Handler,
 		},
@@ -774,6 +536,310 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeEmail",
 			Handler:    _User_ChangeEmail_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "sso/sso.proto",
+}
+
+const (
+	Transactions_Reserve_FullMethodName         = "/auth.Transactions/Reserve"
+	Transactions_CommitReserve_FullMethodName   = "/auth.Transactions/CommitReserve"
+	Transactions_CancelReserve_FullMethodName   = "/auth.Transactions/CancelReserve"
+	Transactions_GetBalance_FullMethodName      = "/auth.Transactions/GetBalance"
+	Transactions_Deposit_FullMethodName         = "/auth.Transactions/Deposit"
+	Transactions_GetTransactions_FullMethodName = "/auth.Transactions/GetTransactions"
+)
+
+// TransactionsClient is the client API for Transactions service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type TransactionsClient interface {
+	// Резервирование (заморозка) средств - включает проверку баланса
+	Reserve(ctx context.Context, in *ReserveRequest, opts ...grpc.CallOption) (*ReserveResponse, error)
+	// Подтверждение списания зарезервированных средств
+	CommitReserve(ctx context.Context, in *CommitReserveRequest, opts ...grpc.CallOption) (*CommitReserveResponse, error)
+	// Отмена резервирования (разморозка средств)
+	CancelReserve(ctx context.Context, in *CancelReserveRequest, opts ...grpc.CallOption) (*CancelReserveResponse, error)
+	// Получение баланса пользователя
+	GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceResponse, error)
+	// Пополнение баланса (для платежных систем / админов)
+	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error)
+	// История транзакций пользователя
+	GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error)
+}
+
+type transactionsClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewTransactionsClient(cc grpc.ClientConnInterface) TransactionsClient {
+	return &transactionsClient{cc}
+}
+
+func (c *transactionsClient) Reserve(ctx context.Context, in *ReserveRequest, opts ...grpc.CallOption) (*ReserveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReserveResponse)
+	err := c.cc.Invoke(ctx, Transactions_Reserve_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transactionsClient) CommitReserve(ctx context.Context, in *CommitReserveRequest, opts ...grpc.CallOption) (*CommitReserveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CommitReserveResponse)
+	err := c.cc.Invoke(ctx, Transactions_CommitReserve_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transactionsClient) CancelReserve(ctx context.Context, in *CancelReserveRequest, opts ...grpc.CallOption) (*CancelReserveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelReserveResponse)
+	err := c.cc.Invoke(ctx, Transactions_CancelReserve_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transactionsClient) GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBalanceResponse)
+	err := c.cc.Invoke(ctx, Transactions_GetBalance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transactionsClient) Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DepositResponse)
+	err := c.cc.Invoke(ctx, Transactions_Deposit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transactionsClient) GetTransactions(ctx context.Context, in *GetTransactionsRequest, opts ...grpc.CallOption) (*GetTransactionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTransactionsResponse)
+	err := c.cc.Invoke(ctx, Transactions_GetTransactions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TransactionsServer is the server API for Transactions service.
+// All implementations must embed UnimplementedTransactionsServer
+// for forward compatibility.
+type TransactionsServer interface {
+	// Резервирование (заморозка) средств - включает проверку баланса
+	Reserve(context.Context, *ReserveRequest) (*ReserveResponse, error)
+	// Подтверждение списания зарезервированных средств
+	CommitReserve(context.Context, *CommitReserveRequest) (*CommitReserveResponse, error)
+	// Отмена резервирования (разморозка средств)
+	CancelReserve(context.Context, *CancelReserveRequest) (*CancelReserveResponse, error)
+	// Получение баланса пользователя
+	GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceResponse, error)
+	// Пополнение баланса (для платежных систем / админов)
+	Deposit(context.Context, *DepositRequest) (*DepositResponse, error)
+	// История транзакций пользователя
+	GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error)
+	mustEmbedUnimplementedTransactionsServer()
+}
+
+// UnimplementedTransactionsServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedTransactionsServer struct{}
+
+func (UnimplementedTransactionsServer) Reserve(context.Context, *ReserveRequest) (*ReserveResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Reserve not implemented")
+}
+func (UnimplementedTransactionsServer) CommitReserve(context.Context, *CommitReserveRequest) (*CommitReserveResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CommitReserve not implemented")
+}
+func (UnimplementedTransactionsServer) CancelReserve(context.Context, *CancelReserveRequest) (*CancelReserveResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CancelReserve not implemented")
+}
+func (UnimplementedTransactionsServer) GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetBalance not implemented")
+}
+func (UnimplementedTransactionsServer) Deposit(context.Context, *DepositRequest) (*DepositResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Deposit not implemented")
+}
+func (UnimplementedTransactionsServer) GetTransactions(context.Context, *GetTransactionsRequest) (*GetTransactionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTransactions not implemented")
+}
+func (UnimplementedTransactionsServer) mustEmbedUnimplementedTransactionsServer() {}
+func (UnimplementedTransactionsServer) testEmbeddedByValue()                      {}
+
+// UnsafeTransactionsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TransactionsServer will
+// result in compilation errors.
+type UnsafeTransactionsServer interface {
+	mustEmbedUnimplementedTransactionsServer()
+}
+
+func RegisterTransactionsServer(s grpc.ServiceRegistrar, srv TransactionsServer) {
+	// If the following call panics, it indicates UnimplementedTransactionsServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Transactions_ServiceDesc, srv)
+}
+
+func _Transactions_Reserve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReserveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionsServer).Reserve(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transactions_Reserve_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionsServer).Reserve(ctx, req.(*ReserveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Transactions_CommitReserve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitReserveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionsServer).CommitReserve(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transactions_CommitReserve_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionsServer).CommitReserve(ctx, req.(*CommitReserveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Transactions_CancelReserve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelReserveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionsServer).CancelReserve(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transactions_CancelReserve_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionsServer).CancelReserve(ctx, req.(*CancelReserveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Transactions_GetBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionsServer).GetBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transactions_GetBalance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionsServer).GetBalance(ctx, req.(*GetBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Transactions_Deposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DepositRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionsServer).Deposit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transactions_Deposit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionsServer).Deposit(ctx, req.(*DepositRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Transactions_GetTransactions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTransactionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionsServer).GetTransactions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transactions_GetTransactions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionsServer).GetTransactions(ctx, req.(*GetTransactionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Transactions_ServiceDesc is the grpc.ServiceDesc for Transactions service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Transactions_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "auth.Transactions",
+	HandlerType: (*TransactionsServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Reserve",
+			Handler:    _Transactions_Reserve_Handler,
+		},
+		{
+			MethodName: "CommitReserve",
+			Handler:    _Transactions_CommitReserve_Handler,
+		},
+		{
+			MethodName: "CancelReserve",
+			Handler:    _Transactions_CancelReserve_Handler,
+		},
+		{
+			MethodName: "GetBalance",
+			Handler:    _Transactions_GetBalance_Handler,
+		},
+		{
+			MethodName: "Deposit",
+			Handler:    _Transactions_Deposit_Handler,
+		},
+		{
+			MethodName: "GetTransactions",
+			Handler:    _Transactions_GetTransactions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
