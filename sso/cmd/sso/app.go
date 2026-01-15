@@ -48,6 +48,9 @@ func main() {
 	go application.GRPCSrv.MustRun()
 	go application.TelegramCallbackServer.MustRun()
 
+	// Запускаем cron worker для отмены истёкших резервирований
+	application.ExpiredReservationsWorker.Start()
+
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
@@ -55,6 +58,7 @@ func main() {
 	sign := <-stop
 	log.Info("stopping application", slog.String("signal", sign.String()))
 
+	application.ExpiredReservationsWorker.Stop()
 	application.GRPCSrv.Stop()
 	log.Info("application stopped")
 }

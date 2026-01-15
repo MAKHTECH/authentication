@@ -7,6 +7,7 @@ option go_package = "makhkets.go.v1;ssov1";
 // Импортируем другие .proto файлы
 import "sso/auth.proto";
 import "sso/user.proto";
+import "sso/transactions.proto";
 
 
 service Auth {
@@ -29,10 +30,20 @@ service Auth {
 
 service User {
   // --- FOR ADMIN ---
-
   // Назначение роли пользователю (для админов)
   rpc AssignRole (AssignRoleRequest) returns (AssignRoleResponse);
 
+  // Удаление роли у пользователя (для админов)
+  // rpc RevokeRole (RevokeRoleRequest) returns (RevokeRoleResponse);
+
+  // --- FOR USER ---
+  rpc ChangeAvatar (ChangeAvatarRequest) returns (ChangeAvatarResponse);
+  rpc ChangeUsername (ChangeUsernameRequest) returns (ChangeUsernameResponse);
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse);
+}
+
+service Transactions {
   // --- BALANCE OPERATIONS (Two-Phase Commit Pattern) ---
   // Документация:
   // 1. Reserve - замораживает средства (balance -> reserved_balance) + проверка баланса
@@ -56,14 +67,4 @@ service User {
 
   // История транзакций пользователя
   rpc GetTransactions (GetTransactionsRequest) returns (GetTransactionsResponse);
-
-  // Удаление роли у пользователя (для админов)
-  // rpc RevokeRole (RevokeRoleRequest) returns (RevokeRoleResponse);
-
-  // --- FOR USER ---
-  rpc ChangeAvatar (ChangeAvatarRequest) returns (ChangeAvatarResponse);
-  rpc ChangeUsername (ChangeUsernameRequest) returns (ChangeUsernameResponse);
-  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
-  rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse);
 }
-

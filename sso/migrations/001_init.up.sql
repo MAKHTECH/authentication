@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     idempotency_key VARCHAR(255) UNIQUE,             -- Ключ идемпотентности
     metadata        JSONB,                           -- JSON с дополнительными данными
     expires_at      TIMESTAMP,                       -- Время истечения резервирования (для type='reserve')
+    status          VARCHAR(10) NOT NULL DEFAULT 'pending', -- Статус транзакции: 'pending', 'success', 'failed'
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -88,7 +89,9 @@ CREATE TABLE IF NOT EXISTS transactions (
     -- Проверка типа транзакции
     CONSTRAINT check_transaction_type CHECK (type IN ('deposit', 'reserve', 'commit', 'cancel', 'refund', 'withdrawal')),
     -- Проверка что сумма положительная
-    CONSTRAINT check_positive_amount CHECK (amount > 0)
+    CONSTRAINT check_positive_amount CHECK (amount > 0),
+    -- Проверка статуса транзакции
+    CONSTRAINT check_transaction_status CHECK (status IN ('pending', 'success', 'failed'))
 );
 
 -- Индексы для оптимизации запросов
@@ -117,12 +120,16 @@ WHERE NOT EXISTS (SELECT 1 FROM apps LIMIT 1);
 
 -- Вставка администратора (только если нет пользователя с username 'admin')
 -- Пароль: admin (bcrypt hash)
-INSERT INTO users (email, pass_hash, username, auth_type, role)
+INSERT INTO users (email, pass_hash, username, auth_type, role, balance)
 SELECT
     'admin@localhost',
     '$2a$10$N9qo8uLOickgx2ZMRZoMy.MqrqbqeL6VZ5WQXQ4gqkuqL7auGYfnW',
     'admin',
     'email',
-    'admin'
+    'admin',
+    100000
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
+
+-- test jwt token for user admin
+-- v2.public.eyJhcHBfaWQiOjEsImV4cCI6MTg1NDg5MDE3NSwicGhvdG9fdXJsIjoiIiwicm9sZSI6Miwic3ViIjoxLCJ1c2VybmFtZSI6Im1ha2hrZXRzIn2irI1mTOvDnETqtEgBAnBebr6SHE5yaQMKkGvrT7kMIaF6yjWJTBu2tEgscPAOTJ02x3pJKhyb54iVRbwcOD4E.bnVsbA
 

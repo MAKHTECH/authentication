@@ -1,13 +1,15 @@
-package rstorage
+package redis
 
 import (
 	"context"
 	"fmt"
-	"sso/sso/internal/domain/models"
 	"time"
+
+	"sso/sso/internal/domain/models"
 )
 
-func (r *RClient) SaveRefreshSession(ctx context.Context, rs *models.RefreshSession, refreshTTL time.Duration) error {
+// SaveRefreshSession сохраняет refresh сессию
+func (r *Repository) SaveRefreshSession(ctx context.Context, rs *models.RefreshSession, refreshTTL time.Duration) error {
 	key := "user:" + rs.UserId + ":" + rs.Fingerprint
 	response := r.Client.HMSet(ctx, key, map[string]interface{}{
 		"refreshToken": rs.RefreshToken,
@@ -30,7 +32,8 @@ func (r *RClient) SaveRefreshSession(ctx context.Context, rs *models.RefreshSess
 	return nil
 }
 
-func (r *RClient) GetRefreshSession(ctx context.Context, fingerprint string) (*models.RefreshSession, error) {
+// GetRefreshSession получает refresh сессию по fingerprint
+func (r *Repository) GetRefreshSession(ctx context.Context, fingerprint string) (*models.RefreshSession, error) {
 	keyPattern := "user:*:" + fingerprint
 	keys, err := r.Client.Keys(ctx, keyPattern).Result()
 	if err != nil {
@@ -73,7 +76,7 @@ func (r *RClient) GetRefreshSession(ctx context.Context, fingerprint string) (*m
 }
 
 // GetRefreshSessionsByUserId возвращает все сессии пользователя по его ID
-func (r *RClient) GetRefreshSessionsByUserId(ctx context.Context, userID string) ([]*models.RefreshSession, error) {
+func (r *Repository) GetRefreshSessionsByUserId(ctx context.Context, userID string) ([]*models.RefreshSession, error) {
 	// Формируем паттерн для поиска ключей: user:<user_id>:*
 	keyPattern := fmt.Sprintf("user:%s:*", userID)
 
@@ -101,7 +104,8 @@ func (r *RClient) GetRefreshSessionsByUserId(ctx context.Context, userID string)
 	return refreshSessions, nil
 }
 
-func (r *RClient) DeleteRefreshSession(ctx context.Context, fingerprint, id string) error {
+// DeleteRefreshSession удаляет refresh сессию
+func (r *Repository) DeleteRefreshSession(ctx context.Context, fingerprint, id string) error {
 	key := "user:" + id + ":" + fingerprint
 	if err := r.Client.Del(ctx, key).Err(); err != nil {
 		return err
@@ -111,7 +115,7 @@ func (r *RClient) DeleteRefreshSession(ctx context.Context, fingerprint, id stri
 }
 
 // getRefreshSessionFromKey извлекает данные сессии по конкретному ключу
-func (r *RClient) getRefreshSessionFromKey(ctx context.Context, key string) (*models.RefreshSession, error) {
+func (r *Repository) getRefreshSessionFromKey(ctx context.Context, key string) (*models.RefreshSession, error) {
 	// Получаем все поля хэша по ключу
 	result, err := r.Client.HGetAll(ctx, key).Result()
 	if err != nil {

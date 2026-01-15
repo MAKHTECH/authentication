@@ -24,28 +24,29 @@ var File_sso_sso_proto protoreflect.FileDescriptor
 
 const file_sso_sso_proto_rawDesc = "" +
 	"\n" +
-	"\rsso/sso.proto\x12\x04auth\x1a\x0esso/auth.proto\x1a\x0esso/user.proto2\xb0\x02\n" +
+	"\rsso/sso.proto\x12\x04auth\x1a\x0esso/auth.proto\x1a\x0esso/user.proto\x1a\x16sso/transactions.proto2\xb0\x02\n" +
 	"\x04Auth\x129\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12E\n" +
 	"\fRefreshToken\x12\x19.auth.RefreshTokenRequest\x1a\x1a.auth.RefreshTokenResponse\x12?\n" +
 	"\n" +
 	"GetDevices\x12\x17.auth.GetDevicesRequest\x1a\x18.auth.GetDevicesResponse\x123\n" +
-	"\x06Logout\x12\x13.auth.LogoutRequest\x1a\x14.auth.LogoutResponse2\x81\x06\n" +
+	"\x06Logout\x12\x13.auth.LogoutRequest\x1a\x14.auth.LogoutResponse2\xec\x02\n" +
 	"\x04User\x12?\n" +
 	"\n" +
-	"AssignRole\x12\x17.auth.AssignRoleRequest\x1a\x18.auth.AssignRoleResponse\x126\n" +
+	"AssignRole\x12\x17.auth.AssignRoleRequest\x1a\x18.auth.AssignRoleResponse\x12E\n" +
+	"\fChangeAvatar\x12\x19.auth.ChangeAvatarRequest\x1a\x1a.auth.ChangeAvatarResponse\x12K\n" +
+	"\x0eChangeUsername\x12\x1b.auth.ChangeUsernameRequest\x1a\x1c.auth.ChangeUsernameResponse\x12K\n" +
+	"\x0eChangePassword\x12\x1b.auth.ChangePasswordRequest\x1a\x1c.auth.ChangePasswordResponse\x12B\n" +
+	"\vChangeEmail\x12\x18.auth.ChangeEmailRequest\x1a\x19.auth.ChangeEmailResponse2\xa3\x03\n" +
+	"\fTransactions\x126\n" +
 	"\aReserve\x12\x14.auth.ReserveRequest\x1a\x15.auth.ReserveResponse\x12H\n" +
 	"\rCommitReserve\x12\x1a.auth.CommitReserveRequest\x1a\x1b.auth.CommitReserveResponse\x12H\n" +
 	"\rCancelReserve\x12\x1a.auth.CancelReserveRequest\x1a\x1b.auth.CancelReserveResponse\x12?\n" +
 	"\n" +
 	"GetBalance\x12\x17.auth.GetBalanceRequest\x1a\x18.auth.GetBalanceResponse\x126\n" +
 	"\aDeposit\x12\x14.auth.DepositRequest\x1a\x15.auth.DepositResponse\x12N\n" +
-	"\x0fGetTransactions\x12\x1c.auth.GetTransactionsRequest\x1a\x1d.auth.GetTransactionsResponse\x12E\n" +
-	"\fChangeAvatar\x12\x19.auth.ChangeAvatarRequest\x1a\x1a.auth.ChangeAvatarResponse\x12K\n" +
-	"\x0eChangeUsername\x12\x1b.auth.ChangeUsernameRequest\x1a\x1c.auth.ChangeUsernameResponse\x12K\n" +
-	"\x0eChangePassword\x12\x1b.auth.ChangePasswordRequest\x1a\x1c.auth.ChangePasswordResponse\x12B\n" +
-	"\vChangeEmail\x12\x18.auth.ChangeEmailRequest\x1a\x19.auth.ChangeEmailResponseB\x16Z\x14makhkets.go.v1;ssov1b\x06proto3"
+	"\x0fGetTransactions\x12\x1c.auth.GetTransactionsRequest\x1a\x1d.auth.GetTransactionsResponseB\x16Z\x14makhkets.go.v1;ssov1b\x06proto3"
 
 var file_sso_sso_proto_goTypes = []any{
 	(*RegisterRequest)(nil),         // 0: auth.RegisterRequest
@@ -54,32 +55,32 @@ var file_sso_sso_proto_goTypes = []any{
 	(*GetDevicesRequest)(nil),       // 3: auth.GetDevicesRequest
 	(*LogoutRequest)(nil),           // 4: auth.LogoutRequest
 	(*AssignRoleRequest)(nil),       // 5: auth.AssignRoleRequest
-	(*ReserveRequest)(nil),          // 6: auth.ReserveRequest
-	(*CommitReserveRequest)(nil),    // 7: auth.CommitReserveRequest
-	(*CancelReserveRequest)(nil),    // 8: auth.CancelReserveRequest
-	(*GetBalanceRequest)(nil),       // 9: auth.GetBalanceRequest
-	(*DepositRequest)(nil),          // 10: auth.DepositRequest
-	(*GetTransactionsRequest)(nil),  // 11: auth.GetTransactionsRequest
-	(*ChangeAvatarRequest)(nil),     // 12: auth.ChangeAvatarRequest
-	(*ChangeUsernameRequest)(nil),   // 13: auth.ChangeUsernameRequest
-	(*ChangePasswordRequest)(nil),   // 14: auth.ChangePasswordRequest
-	(*ChangeEmailRequest)(nil),      // 15: auth.ChangeEmailRequest
+	(*ChangeAvatarRequest)(nil),     // 6: auth.ChangeAvatarRequest
+	(*ChangeUsernameRequest)(nil),   // 7: auth.ChangeUsernameRequest
+	(*ChangePasswordRequest)(nil),   // 8: auth.ChangePasswordRequest
+	(*ChangeEmailRequest)(nil),      // 9: auth.ChangeEmailRequest
+	(*ReserveRequest)(nil),          // 10: auth.ReserveRequest
+	(*CommitReserveRequest)(nil),    // 11: auth.CommitReserveRequest
+	(*CancelReserveRequest)(nil),    // 12: auth.CancelReserveRequest
+	(*GetBalanceRequest)(nil),       // 13: auth.GetBalanceRequest
+	(*DepositRequest)(nil),          // 14: auth.DepositRequest
+	(*GetTransactionsRequest)(nil),  // 15: auth.GetTransactionsRequest
 	(*RegisterResponse)(nil),        // 16: auth.RegisterResponse
 	(*LoginResponse)(nil),           // 17: auth.LoginResponse
 	(*RefreshTokenResponse)(nil),    // 18: auth.RefreshTokenResponse
 	(*GetDevicesResponse)(nil),      // 19: auth.GetDevicesResponse
 	(*LogoutResponse)(nil),          // 20: auth.LogoutResponse
 	(*AssignRoleResponse)(nil),      // 21: auth.AssignRoleResponse
-	(*ReserveResponse)(nil),         // 22: auth.ReserveResponse
-	(*CommitReserveResponse)(nil),   // 23: auth.CommitReserveResponse
-	(*CancelReserveResponse)(nil),   // 24: auth.CancelReserveResponse
-	(*GetBalanceResponse)(nil),      // 25: auth.GetBalanceResponse
-	(*DepositResponse)(nil),         // 26: auth.DepositResponse
-	(*GetTransactionsResponse)(nil), // 27: auth.GetTransactionsResponse
-	(*ChangeAvatarResponse)(nil),    // 28: auth.ChangeAvatarResponse
-	(*ChangeUsernameResponse)(nil),  // 29: auth.ChangeUsernameResponse
-	(*ChangePasswordResponse)(nil),  // 30: auth.ChangePasswordResponse
-	(*ChangeEmailResponse)(nil),     // 31: auth.ChangeEmailResponse
+	(*ChangeAvatarResponse)(nil),    // 22: auth.ChangeAvatarResponse
+	(*ChangeUsernameResponse)(nil),  // 23: auth.ChangeUsernameResponse
+	(*ChangePasswordResponse)(nil),  // 24: auth.ChangePasswordResponse
+	(*ChangeEmailResponse)(nil),     // 25: auth.ChangeEmailResponse
+	(*ReserveResponse)(nil),         // 26: auth.ReserveResponse
+	(*CommitReserveResponse)(nil),   // 27: auth.CommitReserveResponse
+	(*CancelReserveResponse)(nil),   // 28: auth.CancelReserveResponse
+	(*GetBalanceResponse)(nil),      // 29: auth.GetBalanceResponse
+	(*DepositResponse)(nil),         // 30: auth.DepositResponse
+	(*GetTransactionsResponse)(nil), // 31: auth.GetTransactionsResponse
 }
 var file_sso_sso_proto_depIdxs = []int32{
 	0,  // 0: auth.Auth.Register:input_type -> auth.RegisterRequest
@@ -88,32 +89,32 @@ var file_sso_sso_proto_depIdxs = []int32{
 	3,  // 3: auth.Auth.GetDevices:input_type -> auth.GetDevicesRequest
 	4,  // 4: auth.Auth.Logout:input_type -> auth.LogoutRequest
 	5,  // 5: auth.User.AssignRole:input_type -> auth.AssignRoleRequest
-	6,  // 6: auth.User.Reserve:input_type -> auth.ReserveRequest
-	7,  // 7: auth.User.CommitReserve:input_type -> auth.CommitReserveRequest
-	8,  // 8: auth.User.CancelReserve:input_type -> auth.CancelReserveRequest
-	9,  // 9: auth.User.GetBalance:input_type -> auth.GetBalanceRequest
-	10, // 10: auth.User.Deposit:input_type -> auth.DepositRequest
-	11, // 11: auth.User.GetTransactions:input_type -> auth.GetTransactionsRequest
-	12, // 12: auth.User.ChangeAvatar:input_type -> auth.ChangeAvatarRequest
-	13, // 13: auth.User.ChangeUsername:input_type -> auth.ChangeUsernameRequest
-	14, // 14: auth.User.ChangePassword:input_type -> auth.ChangePasswordRequest
-	15, // 15: auth.User.ChangeEmail:input_type -> auth.ChangeEmailRequest
+	6,  // 6: auth.User.ChangeAvatar:input_type -> auth.ChangeAvatarRequest
+	7,  // 7: auth.User.ChangeUsername:input_type -> auth.ChangeUsernameRequest
+	8,  // 8: auth.User.ChangePassword:input_type -> auth.ChangePasswordRequest
+	9,  // 9: auth.User.ChangeEmail:input_type -> auth.ChangeEmailRequest
+	10, // 10: auth.Transactions.Reserve:input_type -> auth.ReserveRequest
+	11, // 11: auth.Transactions.CommitReserve:input_type -> auth.CommitReserveRequest
+	12, // 12: auth.Transactions.CancelReserve:input_type -> auth.CancelReserveRequest
+	13, // 13: auth.Transactions.GetBalance:input_type -> auth.GetBalanceRequest
+	14, // 14: auth.Transactions.Deposit:input_type -> auth.DepositRequest
+	15, // 15: auth.Transactions.GetTransactions:input_type -> auth.GetTransactionsRequest
 	16, // 16: auth.Auth.Register:output_type -> auth.RegisterResponse
 	17, // 17: auth.Auth.Login:output_type -> auth.LoginResponse
 	18, // 18: auth.Auth.RefreshToken:output_type -> auth.RefreshTokenResponse
 	19, // 19: auth.Auth.GetDevices:output_type -> auth.GetDevicesResponse
 	20, // 20: auth.Auth.Logout:output_type -> auth.LogoutResponse
 	21, // 21: auth.User.AssignRole:output_type -> auth.AssignRoleResponse
-	22, // 22: auth.User.Reserve:output_type -> auth.ReserveResponse
-	23, // 23: auth.User.CommitReserve:output_type -> auth.CommitReserveResponse
-	24, // 24: auth.User.CancelReserve:output_type -> auth.CancelReserveResponse
-	25, // 25: auth.User.GetBalance:output_type -> auth.GetBalanceResponse
-	26, // 26: auth.User.Deposit:output_type -> auth.DepositResponse
-	27, // 27: auth.User.GetTransactions:output_type -> auth.GetTransactionsResponse
-	28, // 28: auth.User.ChangeAvatar:output_type -> auth.ChangeAvatarResponse
-	29, // 29: auth.User.ChangeUsername:output_type -> auth.ChangeUsernameResponse
-	30, // 30: auth.User.ChangePassword:output_type -> auth.ChangePasswordResponse
-	31, // 31: auth.User.ChangeEmail:output_type -> auth.ChangeEmailResponse
+	22, // 22: auth.User.ChangeAvatar:output_type -> auth.ChangeAvatarResponse
+	23, // 23: auth.User.ChangeUsername:output_type -> auth.ChangeUsernameResponse
+	24, // 24: auth.User.ChangePassword:output_type -> auth.ChangePasswordResponse
+	25, // 25: auth.User.ChangeEmail:output_type -> auth.ChangeEmailResponse
+	26, // 26: auth.Transactions.Reserve:output_type -> auth.ReserveResponse
+	27, // 27: auth.Transactions.CommitReserve:output_type -> auth.CommitReserveResponse
+	28, // 28: auth.Transactions.CancelReserve:output_type -> auth.CancelReserveResponse
+	29, // 29: auth.Transactions.GetBalance:output_type -> auth.GetBalanceResponse
+	30, // 30: auth.Transactions.Deposit:output_type -> auth.DepositResponse
+	31, // 31: auth.Transactions.GetTransactions:output_type -> auth.GetTransactionsResponse
 	16, // [16:32] is the sub-list for method output_type
 	0,  // [0:16] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
@@ -128,6 +129,7 @@ func file_sso_sso_proto_init() {
 	}
 	file_sso_auth_proto_init()
 	file_sso_user_proto_init()
+	file_sso_transactions_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
@@ -136,7 +138,7 @@ func file_sso_sso_proto_init() {
 			NumEnums:      0,
 			NumMessages:   0,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   3,
 		},
 		GoTypes:           file_sso_sso_proto_goTypes,
 		DependencyIndexes: file_sso_sso_proto_depIdxs,

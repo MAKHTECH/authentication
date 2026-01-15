@@ -4,25 +4,25 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sso/sso/internal/repository"
 
 	ssov1 "sso/protos/gen/go/sso"
-	"sso/sso/internal/storage"
 
 	"github.com/lib/pq"
 )
 
 // AssignRole assigns a role to a user
-func (s *Storage) AssignRole(ctx context.Context, userID uint32, appID int, role ssov1.Role) error {
-	const op string = "storage.postgres.user.AssignRole"
+func (r *Repository) AssignRole(ctx context.Context, userID uint32, appID int, role ssov1.Role) error {
+	const op string = "repository.postgres.AssignRole"
 
-	_, err := s.db.ExecContext(ctx,
+	_, err := r.db.ExecContext(ctx,
 		"INSERT INTO user_app_roles(user_id, app_id, role) VALUES($1, $2, $3)",
 		userID, appID, role.String(),
 	)
 	if err != nil {
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) && pqErr.Code == "23505" { // unique_violation
-			return storage.ErrUserRoleExists
+			return repository.ErrUserRoleExists
 		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -31,15 +31,15 @@ func (s *Storage) AssignRole(ctx context.Context, userID uint32, appID int, role
 }
 
 // CheckPermission проверяет права пользователя
-func (s *Storage) CheckPermission(ctx context.Context, userID int, appID int) error {
+func (r *Repository) CheckPermission(ctx context.Context, userID int, appID int) error {
 	panic("implement me")
 }
 
 // ChangePhoto обновляет URL фото профиля пользователя
-func (s *Storage) ChangePhoto(ctx context.Context, userID int, photoURL string) error {
-	const op string = "storage.postgres.user.ChangePhoto"
+func (r *Repository) ChangePhoto(ctx context.Context, userID int, photoURL string) error {
+	const op string = "repository.postgres.ChangePhoto"
 
-	result, err := s.db.ExecContext(ctx,
+	result, err := r.db.ExecContext(ctx,
 		"UPDATE users SET photo_url = $1 WHERE id = $2",
 		photoURL, userID,
 	)
@@ -53,24 +53,24 @@ func (s *Storage) ChangePhoto(ctx context.Context, userID int, photoURL string) 
 	}
 
 	if rowsAffected == 0 {
-		return storage.ErrUserNotFound
+		return repository.ErrUserNotFound
 	}
 
 	return nil
 }
 
 // ChangeUsername обновляет username пользователя
-func (s *Storage) ChangeUsername(ctx context.Context, userID int, username string) error {
-	const op string = "storage.postgres.user.ChangeUsername"
+func (r *Repository) ChangeUsername(ctx context.Context, userID int, username string) error {
+	const op string = "repository.postgres.ChangeUsername"
 
-	result, err := s.db.ExecContext(ctx,
+	result, err := r.db.ExecContext(ctx,
 		"UPDATE users SET username = $1 WHERE id = $2",
 		username, userID,
 	)
 	if err != nil {
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) && pqErr.Code == "23505" { // unique_violation
-			return storage.ErrUsernameUnique
+			return repository.ErrUsernameUnique
 		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -81,24 +81,24 @@ func (s *Storage) ChangeUsername(ctx context.Context, userID int, username strin
 	}
 
 	if rowsAffected == 0 {
-		return storage.ErrUserNotFound
+		return repository.ErrUserNotFound
 	}
 
 	return nil
 }
 
 // ChangeEmail обновляет email пользователя
-func (s *Storage) ChangeEmail(ctx context.Context, userID int, newEmail string) error {
-	const op string = "storage.postgres.user.ChangeEmail"
+func (r *Repository) ChangeEmail(ctx context.Context, userID int, newEmail string) error {
+	const op string = "repository.postgres.ChangeEmail"
 
-	result, err := s.db.ExecContext(ctx,
+	result, err := r.db.ExecContext(ctx,
 		"UPDATE users SET email = $1 WHERE id = $2",
 		newEmail, userID,
 	)
 	if err != nil {
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) && pqErr.Code == "23505" { // unique_violation
-			return storage.ErrEmailUnique
+			return repository.ErrEmailUnique
 		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -109,17 +109,17 @@ func (s *Storage) ChangeEmail(ctx context.Context, userID int, newEmail string) 
 	}
 
 	if rowsAffected == 0 {
-		return storage.ErrUserNotFound
+		return repository.ErrUserNotFound
 	}
 
 	return nil
 }
 
 // ChangePassword обновляет пароль пользователя
-func (s *Storage) ChangePassword(ctx context.Context, userID int, newPassword string) error {
-	const op string = "storage.postgres.user.ChangePassword"
+func (r *Repository) ChangePassword(ctx context.Context, userID int, newPassword string) error {
+	const op string = "repository.postgres.ChangePassword"
 
-	result, err := s.db.ExecContext(ctx,
+	result, err := r.db.ExecContext(ctx,
 		"UPDATE users SET pass_hash = $1 WHERE id = $2",
 		newPassword, userID,
 	)
@@ -133,7 +133,7 @@ func (s *Storage) ChangePassword(ctx context.Context, userID int, newPassword st
 	}
 
 	if rowsAffected == 0 {
-		return storage.ErrUserNotFound
+		return repository.ErrUserNotFound
 	}
 
 	return nil

@@ -30,7 +30,7 @@ migrate:
 	go run ./cmd/migrator --migrations-path=./migrations
 
 # Подключение к PostgreSQL через Docker контейнер
-psql-docker:
+psql:
 	docker compose -f ../deployments/docker/docker-compose.dev.yml exec postgres psql -U sso -d sso
 
 generate:

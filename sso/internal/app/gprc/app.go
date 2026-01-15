@@ -8,9 +8,13 @@ import (
 	"sso/sso/internal/config"
 	gprc_metrics "sso/sso/internal/gprc"
 	grpc_auth "sso/sso/internal/gprc/auth"
+	grpc_transactions "sso/sso/internal/gprc/transactions"
 	gprc_user "sso/sso/internal/gprc/user"
 	"sso/sso/internal/lib/kafka"
 	"sso/sso/internal/lib/ratelimiter"
+	"sso/sso/internal/services/auth"
+	"sso/sso/internal/services/transactions"
+	"sso/sso/internal/services/user"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -40,9 +44,11 @@ func chainUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) grpc.Un
 
 func New(
 	log *slog.Logger, cfg *config.Config,
-	auth grpc_auth.Auth, user gprc_user.UserManagement,
-	limiter *ratelimiter.RateLimiter,
 	producer *kafka.Producer,
+	limiter *ratelimiter.RateLimiter,
+	auth auth.Auth,
+	user user.UserManagement,
+	transactions transactions.TransactionsManagement,
 ) *App {
 
 	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(chainUnaryInterceptors(
@@ -56,6 +62,7 @@ func New(
 
 	grpc_auth.Register(gRPCServer, auth)
 	gprc_user.Register(gRPCServer, user)
+	grpc_transactions.Register(gRPCServer, user, transactions)
 
 	return &App{
 		log:        log,
