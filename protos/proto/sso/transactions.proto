@@ -107,10 +107,8 @@ message DepositResponse {
 
 // История транзакций
 message GetTransactionsRequest {
-  uint32 user_id = 1;
-  int32 app_id = 2;
-  int32 limit = 3;              // Лимит записей (по умолчанию 50)
-  int32 offset = 4;             // Смещение для пагинации
+  int32 from = 1;               // Начальный индекс (включительно, начиная с 0)
+  int32 to = 2;                 // Конечный индекс (не включительно), максимум from + 10
 }
 
 message Transaction {
@@ -126,6 +124,8 @@ message Transaction {
 
 message GetTransactionsResponse {
   repeated Transaction transactions = 1;
-  int32 total_count = 2;
+  int32 total_count = 2;        // Общее количество транзакций
+  int32 from = 3;               // Фактический начальный индекс
+  int32 to = 4;                 // Фактический конечный индекс
 }
 

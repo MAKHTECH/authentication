@@ -17,6 +17,7 @@ type TransactionsManagement interface {
 	Reserve(ctx context.Context, userID int64, appID int32, amount int64, idempotentKey string, description string, ttl time.Duration) (*models.Transaction, error)
 	Commit(ctx context.Context, reservationID string, commitIdempotencyKey string) (*models.Transaction, error)
 	Cancel(ctx context.Context, reservationID string, cancelIdempotencyKey string) (*models.Transaction, error)
+	GetTransactions(ctx context.Context, userID int64, limit, offset int) ([]*models.Transaction, int32, error)
 }
 
 type Transactions struct {
@@ -411,4 +412,29 @@ func (t *Transactions) Cancel(
 	)
 
 	return transaction, nil
+}
+
+// GetTransactions возвращает транзакции пользователя с пагинацией
+func (t *Transactions) GetTransactions(ctx context.Context, userID int64, limit, offset int) ([]*models.Transaction, int32, error) {
+	const op = "transactions.GetTransactions"
+
+	log := t.log.With(
+		slog.String("op", op),
+		slog.Int64("user_id", userID),
+		slog.Int("limit", limit),
+		slog.Int("offset", offset),
+	)
+
+	transactions, totalCount, err := t.dbRepository.GetTransactionsByUserID(ctx, userID, limit, offset)
+	if err != nil {
+		log.Error("failed to get transactions from db", sl.Err(err))
+		return nil, 0, InternalError
+	}
+
+	log.Debug("transactions fetched",
+		slog.Int("count", len(transactions)),
+		slog.Int("total", int(totalCount)),
+	)
+
+	return transactions, totalCount, nil
 }

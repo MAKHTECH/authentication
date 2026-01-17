@@ -86,6 +86,8 @@ CREATE TABLE IF NOT EXISTS transactions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE,
 
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     -- Проверка типа транзакции
     CONSTRAINT check_transaction_type CHECK (type IN ('deposit', 'reserve', 'commit', 'cancel', 'refund', 'withdrawal')),
     -- Проверка что сумма положительная
@@ -93,6 +95,13 @@ CREATE TABLE IF NOT EXISTS transactions (
     -- Проверка статуса транзакции
     CONSTRAINT check_transaction_status CHECK (status IN ('pending', 'success', 'failed'))
 );
+
+-- Триггер для обновления updated_at в transactions
+CREATE TRIGGER update_transactions_updated_at
+    BEFORE UPDATE ON transactions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 
 -- Индексы для оптимизации запросов
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);

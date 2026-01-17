@@ -779,10 +779,8 @@ func (x *DepositResponse) GetErrorMessage() string {
 // История транзакций
 type GetTransactionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	AppId         int32                  `protobuf:"varint,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`   // Лимит записей (по умолчанию 50)
-	Offset        int32                  `protobuf:"varint,4,opt,name=offset,proto3" json:"offset,omitempty"` // Смещение для пагинации
+	From          int32                  `protobuf:"varint,1,opt,name=from,proto3" json:"from,omitempty"` // Начальный индекс (включительно, начиная с 0)
+	To            int32                  `protobuf:"varint,2,opt,name=to,proto3" json:"to,omitempty"`     // Конечный индекс (не включительно), максимум from + 10
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -817,30 +815,16 @@ func (*GetTransactionsRequest) Descriptor() ([]byte, []int) {
 	return file_sso_transactions_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *GetTransactionsRequest) GetUserId() uint32 {
+func (x *GetTransactionsRequest) GetFrom() int32 {
 	if x != nil {
-		return x.UserId
+		return x.From
 	}
 	return 0
 }
 
-func (x *GetTransactionsRequest) GetAppId() int32 {
+func (x *GetTransactionsRequest) GetTo() int32 {
 	if x != nil {
-		return x.AppId
-	}
-	return 0
-}
-
-func (x *GetTransactionsRequest) GetLimit() int32 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
-}
-
-func (x *GetTransactionsRequest) GetOffset() int32 {
-	if x != nil {
-		return x.Offset
+		return x.To
 	}
 	return 0
 }
@@ -948,7 +932,9 @@ func (x *Transaction) GetReservationId() string {
 type GetTransactionsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Transactions  []*Transaction         `protobuf:"bytes,1,rep,name=transactions,proto3" json:"transactions,omitempty"`
-	TotalCount    int32                  `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	TotalCount    int32                  `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"` // Общее количество транзакций
+	From          int32                  `protobuf:"varint,3,opt,name=from,proto3" json:"from,omitempty"`                               // Фактический начальный индекс
+	To            int32                  `protobuf:"varint,4,opt,name=to,proto3" json:"to,omitempty"`                                   // Фактический конечный индекс
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -993,6 +979,20 @@ func (x *GetTransactionsResponse) GetTransactions() []*Transaction {
 func (x *GetTransactionsResponse) GetTotalCount() int32 {
 	if x != nil {
 		return x.TotalCount
+	}
+	return 0
+}
+
+func (x *GetTransactionsResponse) GetFrom() int32 {
+	if x != nil {
+		return x.From
+	}
+	return 0
+}
+
+func (x *GetTransactionsResponse) GetTo() int32 {
+	if x != nil {
+		return x.To
 	}
 	return 0
 }
@@ -1048,12 +1048,10 @@ const file_sso_transactions_proto_rawDesc = "" +
 	"\x0etransaction_id\x18\x02 \x01(\tR\rtransactionId\x12\x1f\n" +
 	"\vnew_balance\x18\x03 \x01(\x03R\n" +
 	"newBalance\x12#\n" +
-	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"v\n" +
-	"\x16GetTransactionsRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\rR\x06userId\x12\x15\n" +
-	"\x06app_id\x18\x02 \x01(\x05R\x05appId\x12\x14\n" +
-	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x04 \x01(\x05R\x06offset\"\x94\x02\n" +
+	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"<\n" +
+	"\x16GetTransactionsRequest\x12\x12\n" +
+	"\x04from\x18\x01 \x01(\x05R\x04from\x12\x0e\n" +
+	"\x02to\x18\x02 \x01(\x05R\x02to\"\x94\x02\n" +
 	"\vTransaction\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12)\n" +
 	"\x04type\x18\x02 \x01(\x0e2\x15.auth.TransactionTypeR\x04type\x12\x16\n" +
@@ -1063,11 +1061,13 @@ const file_sso_transactions_proto_rawDesc = "" +
 	"\vdescription\x18\x06 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\a \x01(\x03R\tcreatedAt\x12%\n" +
-	"\x0ereservation_id\x18\b \x01(\tR\rreservationId\"q\n" +
+	"\x0ereservation_id\x18\b \x01(\tR\rreservationId\"\x95\x01\n" +
 	"\x17GetTransactionsResponse\x125\n" +
 	"\ftransactions\x18\x01 \x03(\v2\x11.auth.TransactionR\ftransactions\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
-	"totalCount*\xe7\x01\n" +
+	"totalCount\x12\x12\n" +
+	"\x04from\x18\x03 \x01(\x05R\x04from\x12\x0e\n" +
+	"\x02to\x18\x04 \x01(\x05R\x02to*\xe7\x01\n" +
 	"\x0fTransactionType\x12 \n" +
 	"\x1cTRANSACTION_TYPE_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18TRANSACTION_TYPE_DEPOSIT\x10\x01\x12\x1c\n" +

@@ -94,10 +94,70 @@ func (s *ServerAPI) Reserve(ctx context.Context, req *ssov1.ReserveRequest) (*ss
 }
 
 func (s *ServerAPI) GetTransactions(ctx context.Context, req *ssov1.GetTransactionsRequest) (*ssov1.GetTransactionsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetTransactions not implemented")
-}
+	userData := ctx.Value("data").(*models.AccessTokenData)
 
-// ----- For Service Role -----
+	const maxRecords = 10
+
+	from := int(req.GetFrom())
+	to := int(req.GetTo())
+
+	// Валидация from: не может быть отрицательным
+	if from < 0 {
+		return nil, status.Error(codes.InvalidArgument, "from must be non-negative")
+	}
+
+	// Валидация to: должен быть больше from
+	if to <= from {
+		return nil, status.Error(codes.InvalidArgument, "to must be greater than from")
+	}
+
+	// Ограничение: максимум 10 записей за раз
+	requestedCount := to - from
+	if requestedCount > maxRecords {
+		return nil, status.Errorf(codes.InvalidArgument, "requested range exceeds maximum of %d records", maxRecords)
+	}
+
+	limit := requestedCount
+	offset := from
+
+	txList, totalCount, err := s.TransactionsManagement.GetTransactions(ctx, userData.UserID, limit, offset)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to get transactions")
+	}
+
+	// Если from >= totalCount, возвращаем пустой список (не ошибка, просто нет данных)
+	// Это уже обрабатывается репозиторием - он вернёт пустой slice
+
+	// Вычисляем фактический диапазон
+	actualTo := int32(from) + int32(len(txList))
+
+	// Конвертируем модели в proto-сообщения
+	protoTransactions := make([]*ssov1.Transaction, 0, len(txList))
+	for _, tx := range txList {
+		protoTx := &ssov1.Transaction{
+			Id:            tx.ID,
+			Type:          tx.Type,
+			Amount:        tx.Amount,
+			BalanceAfter:  tx.BalanceAfter,
+			ReservedAfter: tx.ReservedAfter,
+			Description:   tx.Description,
+			CreatedAt:     tx.CreatedAt.Unix(),
+		}
+
+		if tx.ReservationID != nil {
+			protoTx.ReservationId = *tx.ReservationID
+		}
+
+		protoTransactions = append(protoTransactions, protoTx)
+	}
+
+	return &ssov1.GetTransactionsResponse{
+		Transactions: protoTransactions,
+		TotalCount:   totalCount,
+		From:         int32(from),
+		To:           actualTo,
+	}, nil
+}
 
 func (s *ServerAPI) CommitReserve(ctx context.Context, req *ssov1.CommitReserveRequest) (*ssov1.CommitReserveResponse, error) {
 	reservationID := req.GetReservationId()

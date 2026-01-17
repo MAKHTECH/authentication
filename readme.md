@@ -70,7 +70,7 @@ PostgreSQL  ·  Redis  ·  Kafka (Sarama)  ·  Docker
 - `CommitReserve`
 - `CancelReserve`
 - `GetBalance`
-- `Deposit`
+- `Deposit` (Developing)
 - `GetTransactions`
 
 </td>
@@ -86,7 +86,7 @@ PostgreSQL  ·  Redis  ·  Kafka (Sarama)  ·  Docker
 
 ```json
 {
-  "refreshToken": "v4.public.eyJ...",
+  "refreshToken": "v2.public.eyJ...",
   "fingerprint": "device_abc123",
   "expiresIn": 1737158400,
   "ip": "192.168.1.42",
@@ -98,7 +98,7 @@ PostgreSQL  ·  Redis  ·  Kafka (Sarama)  ·  Docker
 </details>
 
 <details>
-<summary><b>Transaction</b> (PostgreSQL)</summary>
+<summary><b>Transaction</b> (Redis)</summary>
 
 ```json
 {

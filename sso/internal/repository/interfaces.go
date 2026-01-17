@@ -115,6 +115,10 @@ type TransactionRepository interface {
 	// GetExpiredReservations возвращает список ID истёкших резервирований (status='pending', expires_at < NOW())
 	// limit - максимальное количество записей для обработки за раз
 	GetExpiredReservations(ctx context.Context, limit int) ([]string, error)
+
+	// GetTransactionsByUserID возвращает список транзакций пользователя с пагинацией
+	// Сортировка по дате создания (новые первыми)
+	GetTransactionsByUserID(ctx context.Context, userID int64, limit, offset int) ([]*models.Transaction, int32, error)
 }
 
 // PostgresRepository объединяет все PostgreSQL репозитории

@@ -209,6 +209,8 @@ func (r *Repository) GetReservationByID(ctx context.Context, reservationID strin
 	var transaction models.Transaction
 	var txExpiresAt sql.NullTime
 	var reservationIDNull sql.NullString
+	var idempotencyKey sql.NullString
+	var description sql.NullString
 	var typeStr string
 	var statusStr string
 
@@ -229,8 +231,8 @@ func (r *Repository) GetReservationByID(ctx context.Context, reservationID strin
 		&transaction.BalanceAfter,
 		&transaction.ReservedBefore,
 		&transaction.ReservedAfter,
-		&transaction.Description,
-		&transaction.IdempotencyKey,
+		&description,
+		&idempotencyKey,
 		&txExpiresAt,
 		&statusStr,
 		&transaction.CreatedAt,
@@ -248,6 +250,12 @@ func (r *Repository) GetReservationByID(ctx context.Context, reservationID strin
 	}
 	if txExpiresAt.Valid {
 		transaction.ExpiresAt = &txExpiresAt.Time
+	}
+	if idempotencyKey.Valid {
+		transaction.IdempotencyKey = idempotencyKey.String
+	}
+	if description.Valid {
+		transaction.Description = description.String
 	}
 
 	transaction.Type = stringToTransactionType(typeStr)
@@ -418,6 +426,8 @@ func (r *Repository) getCommitTransactionByReservationID(ctx context.Context, re
 	var transaction models.Transaction
 	var txExpiresAt sql.NullTime
 	var reservationIDNull sql.NullString
+	var idempotencyKey sql.NullString
+	var description sql.NullString
 	var typeStr string
 	var statusStr string
 
@@ -439,8 +449,8 @@ func (r *Repository) getCommitTransactionByReservationID(ctx context.Context, re
 		&transaction.BalanceAfter,
 		&transaction.ReservedBefore,
 		&transaction.ReservedAfter,
-		&transaction.Description,
-		&transaction.IdempotencyKey,
+		&description,
+		&idempotencyKey,
 		&txExpiresAt,
 		&statusStr,
 		&transaction.CreatedAt,
@@ -458,6 +468,12 @@ func (r *Repository) getCommitTransactionByReservationID(ctx context.Context, re
 	}
 	if txExpiresAt.Valid {
 		transaction.ExpiresAt = &txExpiresAt.Time
+	}
+	if idempotencyKey.Valid {
+		transaction.IdempotencyKey = idempotencyKey.String
+	}
+	if description.Valid {
+		transaction.Description = description.String
 	}
 
 	transaction.Type = stringToTransactionType(typeStr)
@@ -620,6 +636,8 @@ func (r *Repository) getCancelTransactionByReservationID(ctx context.Context, re
 	var transaction models.Transaction
 	var txExpiresAt sql.NullTime
 	var reservationIDNull sql.NullString
+	var idempotencyKey sql.NullString
+	var description sql.NullString
 	var typeStr string
 	var statusStr string
 
@@ -641,8 +659,8 @@ func (r *Repository) getCancelTransactionByReservationID(ctx context.Context, re
 		&transaction.BalanceAfter,
 		&transaction.ReservedBefore,
 		&transaction.ReservedAfter,
-		&transaction.Description,
-		&transaction.IdempotencyKey,
+		&description,
+		&idempotencyKey,
 		&txExpiresAt,
 		&statusStr,
 		&transaction.CreatedAt,
@@ -664,6 +682,12 @@ func (r *Repository) getCancelTransactionByReservationID(ctx context.Context, re
 	}
 	if txExpiresAt.Valid {
 		transaction.ExpiresAt = &txExpiresAt.Time
+	}
+	if idempotencyKey.Valid {
+		transaction.IdempotencyKey = idempotencyKey.String
+	}
+	if description.Valid {
+		transaction.Description = description.String
 	}
 
 	transaction.Type = stringToTransactionType(typeStr)
@@ -757,6 +781,8 @@ func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID
 	// 6. Создаём транзакцию отмены
 	var cancelTx models.Transaction
 	var txExpiresAt sql.NullTime
+	var idempotencyKey sql.NullString
+	var description sql.NullString
 	var typeStr string
 
 	err = tx.QueryRowContext(ctx, `
@@ -779,8 +805,8 @@ func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID
 		&cancelTx.BalanceAfter,
 		&cancelTx.ReservedBefore,
 		&cancelTx.ReservedAfter,
-		&cancelTx.Description,
-		&cancelTx.IdempotencyKey,
+		&description,
+		&idempotencyKey,
 		&txExpiresAt,
 		&cancelTx.Status,
 		&cancelTx.CreatedAt,
@@ -792,6 +818,12 @@ func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID
 
 	cancelTx.Type = stringToTransactionType(typeStr)
 	cancelTx.ReservationID = &reservationID
+	if idempotencyKey.Valid {
+		cancelTx.IdempotencyKey = idempotencyKey.String
+	}
+	if description.Valid {
+		cancelTx.Description = description.String
+	}
 
 	if err := tx.Commit(); err != nil {
 		return nil, err
@@ -830,4 +862,89 @@ func (r *Repository) GetExpiredReservations(ctx context.Context, limit int) ([]s
 	}
 
 	return ids, nil
+}
+
+// GetTransactionsByUserID возвращает список транзакций пользователя с пагинацией
+// Сортировка по дате создания (новые первыми)
+func (r *Repository) GetTransactionsByUserID(ctx context.Context, userID int64, limit, offset int) ([]*models.Transaction, int32, error) {
+	// Получаем общее количество транзакций пользователя
+	var totalCount int32
+	err := r.db.QueryRowContext(ctx, `
+		SELECT COUNT(*) FROM transactions WHERE user_id = $1
+	`, userID).Scan(&totalCount)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if totalCount == 0 {
+		return []*models.Transaction{}, 0, nil
+	}
+
+	// Получаем транзакции с пагинацией
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT id, user_id, app_id, reservation_id, type, amount,
+			balance_before, balance_after, reserved_before, reserved_after,
+			description, idempotency_key, expires_at, status, created_at
+		FROM transactions
+		WHERE user_id = $1
+		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
+	`, userID, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var transactions []*models.Transaction
+	for rows.Next() {
+		var tx models.Transaction
+		var txExpiresAt sql.NullTime
+		var reservationID sql.NullString
+		var idempotencyKey sql.NullString
+		var description sql.NullString
+		var typeStr string
+
+		err := rows.Scan(
+			&tx.ID,
+			&tx.UserID,
+			&tx.AppID,
+			&reservationID,
+			&typeStr,
+			&tx.Amount,
+			&tx.BalanceBefore,
+			&tx.BalanceAfter,
+			&tx.ReservedBefore,
+			&tx.ReservedAfter,
+			&description,
+			&idempotencyKey,
+			&txExpiresAt,
+			&tx.Status,
+			&tx.CreatedAt,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		if reservationID.Valid {
+			tx.ReservationID = &reservationID.String
+		}
+		if txExpiresAt.Valid {
+			tx.ExpiresAt = &txExpiresAt.Time
+		}
+		if idempotencyKey.Valid {
+			tx.IdempotencyKey = idempotencyKey.String
+		}
+		if description.Valid {
+			tx.Description = description.String
+		}
+		tx.Type = stringToTransactionType(typeStr)
+
+		transactions = append(transactions, &tx)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return transactions, totalCount, nil
 }

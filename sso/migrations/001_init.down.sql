@@ -11,11 +11,13 @@ DROP INDEX IF EXISTS idx_transactions_user_app;
 DROP INDEX IF EXISTS idx_transactions_user_id;
 
 -- Удаляем таблицы
+DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS balance_transactions;
 DROP TABLE IF EXISTS user_app_roles;
 DROP TABLE IF EXISTS apps;
 
--- Удаляем триггер и функцию
+-- Удаляем триггеры и функцию
+DROP TRIGGER IF EXISTS update_transactions_updated_at ON transactions;
 DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 DROP FUNCTION IF EXISTS update_updated_at_column();
 
