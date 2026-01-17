@@ -1,121 +1,147 @@
-# 🔐 Authentication Service
+<p align="center">
+  <img src="https://img.shields.io/badge/Go-1.24-00ADD8?style=for-the-badge&logo=go&logoColor=white" />
+  <img src="https://img.shields.io/badge/gRPC-4285F4?style=for-the-badge&logo=google&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" />
+  <img src="https://img.shields.io/badge/Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white" />
+</p>
 
-![Go Version](https://img.shields.io/badge/go-1.21%2B-blue)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+# 🔐 Authentication / SSO Service
 
-Современный микросервис аутентификации на **gRPC** с использованием **PASETO** токенов, поддержкой Redis для управления сессиями и интеграцией с Telegram для авторизации.
-
----
-
-## ✨ Основные возможности
-
-### Аутентификация и авторизация
-- **Регистрация и вход** — классическая аутентификация по логину/паролю
-- **Telegram Login** — вход через Telegram аккаунт
-- **JWT/PASETO токены** — безопасное управление сессиями
-- **Refresh токены** — автоматическое обновление сессий
-- **Управление устройствами** — просмотр и контроль активных сессий
-- **Rate Limiting** — защита от брутфорса и DDoS атак
-
-### Управление пользователями
-- **Ролевая модель** — назначение прав доступа
-- **Мультисессии** — поддержка входа с нескольких устройств
-- **Баланс пользователя** — хранение и управление балансом
-- **Аватарки** — поддержка пользовательских аватаров
-
-### Мониторинг
-- **Метрики Prometheus** — отслеживание производительности
-- **Структурированное логирование** — slog для удобной отладки
+> **Production-grade** микросервис аутентификации и управления балансом.  
+> gRPC-first · PASETO + Ed25519 · Idempotent Transactions · Event-Driven
 
 ---
 
-## 📋 Последние изменения
+## ⚡ Возможности
 
-### База данных
-- Добавлено поле **balance** — хранение баланса пользователя
-- Добавлено поле **avatar** — URL аватарки пользователя (поддержка Telegram photo_url)
-
-### Авторизация через Telegram
-- Реализован HTTP callback handler для Telegram Login Widget
-- Автоматическое создание/обновление пользователя при входе через Telegram
-- Синхронизация данных профиля (имя, username, фото) из Telegram
-- Поддержка HMAC-SHA256 валидации для безопасности
+| Модуль | Описание |
+|--------|----------|
+| **Auth** | Регистрация, логин, refresh/logout, управление устройствами |
+| **Telegram Login** | OAuth-like callback + синхронизация профиля |
+| **User Management** | Роли, смена email / username / password / avatar |
+| **Transactions** | Reserve → Commit / Cancel, Deposit, история операций |
+| **Idempotency** | Гарантия отсутствия дублей в финансовых операциях |
+| **Events** | Kafka-продюсер для интеграции с другими сервисами |
+| **Background Jobs** | Cron-воркер для автоотмены протухших резервов |
+| **Observability** | Структурированные логи (slog), метрики Prometheus |
 
 ---
 
-## 🛠️ Технологии
+## 🛠 Стек
 
-**Backend**  
-![Go](https://img.shields.io/badge/Go-00ADD8?style=flat-square&logo=go&logoColor=white)
-![gRPC](https://img.shields.io/badge/gRPC-4285F4?style=flat-square&logo=google&logoColor=white)
-![PASETO](https://img.shields.io/badge/PASETO-000000?style=flat-square&logoColor=white)
-
-**Хранение данных**  
-![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
-![Kafka](https://img.shields.io/badge/Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)
-
-**Мониторинг**  
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white)
+```
+Go 1.24  ·  gRPC / Protobuf  ·  PASETO (Ed25519)
+PostgreSQL  ·  Redis  ·  Kafka (Sarama)  ·  Docker
+```
 
 ---
 
 ## 📡 API
 
-### AuthService (gRPC)
-- `Register` — регистрация нового пользователя
-- `Login` — вход по логину/паролю
-- `TelegramAuth` — авторизация через Telegram
-- `RefreshToken` — обновление access токена
-- `GetDevices` — список активных сессий пользователя
-- `Logout` — завершение сессии
+> Контракты: `protos/proto/sso/*.proto`
 
-### UserService (gRPC)
-- `AssignRole` — управление ролями пользователей
+<table>
+<tr>
+<td valign="top">
+
+**AuthService**
+- `Register`
+- `Login`
+- `RefreshToken`
+- `GetDevices`
+- `Logout`
+
+</td>
+<td valign="top">
+
+**UserService**
+- `AssignRole`
+- `ChangeAvatar`
+- `ChangeUsername`
+- `ChangePassword`
+- `ChangeEmail`
+
+</td>
+<td valign="top">
+
+**TransactionsService**
+- `Reserve`
+- `CommitReserve`
+- `CancelReserve`
+- `GetBalance`
+- `Deposit`
+- `GetTransactions`
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🔑 Структура сессии в Redis
+## 💾 Модели данных
+
+<details>
+<summary><b>Session</b> (Redis)</summary>
 
 ```json
 {
-  "refreshToken": "token_value",
-  "fingerprint": "device_identifier",
-  "expiresIn": 1640000000,
-  "ip": "192.168.1.1",
-  "createdAt": 1639000000,
-  "userId": "user_id",
+  "refreshToken": "v4.public.eyJ...",
+  "fingerprint": "device_abc123",
+  "expiresIn": 1737158400,
+  "ip": "192.168.1.42",
+  "createdAt": 1734566400,
+  "userId": "usr_7f3a2b",
   "userAgent": "Mozilla/5.0..."
 }
 ```
+</details>
+
+<details>
+<summary><b>Transaction</b> (PostgreSQL)</summary>
+
+```json
+{
+  "id": "txn_b6716b6a",
+  "type": "RESERVE",
+  "amount": 1500,
+  "balance_after": 8500,
+  "reserved_after": 1500,
+  "description": "Order #1234",
+  "created_at": 1737158400,
+  "reservation_id": "resv_9d1f4e"
+}
+```
+</details>
 
 ---
 
-## 📁 Структура проекта
+## 📁 Структура
 
 ```
 authentication/
-├── protos/              # Protocol Buffers
-│   ├── gen/go/         # Сгенерированный Go код
-│   └── proto/          # .proto файлы
-├── sso/
-│   ├── cmd/            # Точки входа
-│   │   ├── migrator/   # Миграции БД
-│   │   └── sso/        # Основное приложение
-│   ├── config/         # Конфигурационные файлы
-│   ├── internal/
-│   │   ├── app/        # Инициализация приложения
-│   │   ├── domain/     # Модели данных
-│   │   ├── grpc/       # gRPC handlers
-│   │   ├── http/       # HTTP handlers (Telegram callback)
-│   │   ├── lib/        # Утилиты (jwt, kafka, logger)
-│   │   ├── services/   # Бизнес-логика
-│   │   └── storage/    # Слой доступа к данным
-│   ├── migrations/     # SQL миграции
-│   ├── tests/          # Интеграционные тесты
-│   └── pkg/            # Публичные утилиты
-└── deployments/
-    └── docker/         # Docker конфигурация
+├── deployments/docker/          # Docker & Compose
+├── protos/
+│   ├── gen/go/                  # Generated Go code
+│   └── proto/sso/               # .proto definitions
+└── sso/
+    ├── cmd/                     # Entrypoints (sso, migrator, genkey, genjwt)
+    ├── config/                  # local.json, prometheus.yml
+    ├── internal/
+    │   ├── app/                 # Wiring: gRPC, HTTP, Cron
+    │   ├── domain/              # Domain models
+    │   ├── gprc/                # gRPC handlers & middleware
+    │   ├── http/                # HTTP (Telegram callback)
+    │   ├── lib/                 # JWT, Kafka, Logger, RateLimiter
+    │   ├── repository/          # Postgres & Redis repos
+    │   └── services/            # Business logic
+    ├── migrations/              # SQL migrations
+    ├── pkg/                     # Shared utilities
+    └── tests/                   # Integration tests
 ```
 
 ---
+
+<p align="center">
+  <sub>Built with ❤️ and Go</sub>
+</p>
