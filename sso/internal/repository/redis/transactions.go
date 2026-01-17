@@ -11,13 +11,13 @@ import (
 
 func (r *Repository) SaveIdempotentKey(ctx context.Context, transaction *models.RedisTransaction) error {
 	response := r.Client.HMSet(ctx, transaction.Key(), map[string]interface{}{
-		"status": transaction.Status,
+		"status": int(transaction.Status),
 
-		"type":    transaction.OperationType,
+		"type":    int(transaction.OperationType),
 		"amount":  transaction.Amount,
 		"user_id": transaction.UserID,
 
-		"createdAt": transaction.CreatedAt,
+		"createdAt": transaction.CreatedAt.Format(time.RFC3339Nano),
 	})
 	if response.Err() != nil {
 		return response.Err()

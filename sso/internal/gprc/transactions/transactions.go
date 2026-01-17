@@ -86,7 +86,7 @@ func (s *ServerAPI) Reserve(ctx context.Context, req *ssov1.ReserveRequest) (*ss
 	}
 
 	return &ssov1.ReserveResponse{
-		Status:           ssov1.TransactionStatus_TRANSACTION_SUCCESS,
+		Status:           ssov1.TransactionStatus_TRANSACTION_PENDING,
 		ReservationId:    transaction.ID,
 		ReservedAmount:   transaction.Amount,
 		RemainingBalance: transaction.BalanceAfter - transaction.ReservedAfter,

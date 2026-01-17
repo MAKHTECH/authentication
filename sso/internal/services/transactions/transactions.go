@@ -158,11 +158,8 @@ func (t *Transactions) Reserve(
 		return nil, ReservationExpired
 	}
 
-	// 5. Успех - обновляем Redis
-	if err := t.transactionRepository.SetIdempotentKeyStatus(ctx, idempotentKey, ssov1.TransactionStatus_TRANSACTION_SUCCESS); err != nil {
-		log.Error("failed to update redis status to success", sl.Err(err))
-		// Не критично - транзакция в БД уже создана
-	}
+	// 5. Резервирование успешно создано, статус остаётся PENDING
+	// SUCCESS будет установлен только после commit, FAILED - после cancel или истечения срока
 
 	log.Info("reserve successful",
 		slog.String("transaction_id", transaction.ID),

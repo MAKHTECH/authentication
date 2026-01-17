@@ -101,7 +101,7 @@ type TransactionRepository interface {
 	// Возвращает транзакцию отмены или ошибку
 	CancelExpiredReservation(ctx context.Context, reservationID string) (*models.Transaction, error)
 
-	// GetExpiredReservations возвращает список ID истёкших резервирований (status='reserved', expires_at < NOW())
+	// GetExpiredReservations возвращает список ID истёкших резервирований (status='pending', expires_at < NOW())
 	// limit - максимальное количество записей для обработки за раз
 	GetExpiredReservations(ctx context.Context, limit int) ([]string, error)
 }

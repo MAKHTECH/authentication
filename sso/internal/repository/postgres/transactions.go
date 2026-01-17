@@ -69,7 +69,7 @@ func (r *Repository) Reserve(
 			balance_before, balance_after, 
 			reserved_before, reserved_after,
 			description, idempotency_key, expires_at, status
-		) VALUES ($1, $2, 'reserve', $3, $4, $4, $5, $6, $7, $8, $9, 'reserved')
+		) VALUES ($1, $2, 'reserve', $3, $4, $4, $5, $6, $7, $8, $9, 'pending')
 		RETURNING id, user_id, app_id, type, amount, 
 			balance_before, balance_after, reserved_before, reserved_after,
 			description, idempotency_key, expires_at, status, created_at
@@ -205,9 +205,9 @@ func stringToTransactionType(s string) ssov1.TransactionType {
 }
 
 // CancelExpiredReservation отменяет истёкшее резервирование и возвращает средства
-// 1. Проверяем что резервирование существует, status='reserved', expires_at < NOW()
+// 1. Проверяем что резервирование существует, status='pending', expires_at < NOW()
 // 2. Возвращаем reserve_balance пользователю
-// 3. Обновляем статус резервирования на 'expired'
+// 3. Обновляем статус резервирования на 'failed'
 // 4. Создаём транзакцию отмены
 func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID string) (*models.Transaction, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
@@ -247,8 +247,8 @@ func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID
 		return nil, err
 	}
 
-	// 2. Проверяем статус - должен быть reserved
-	if reservation.Status != "reserved" {
+	// 2. Проверяем статус - должен быть pending
+	if reservation.Status != "pending" {
 		return nil, repository.ErrTransactionNotPending
 	}
 
@@ -276,10 +276,10 @@ func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID
 
 	reservedAfter := reservedBefore - reservation.Amount
 
-	// 5. Обновляем статус оригинального резервирования на 'expired'
+	// 5. Обновляем статус оригинального резервирования на 'failed'
 	_, err = tx.ExecContext(ctx, `
 		UPDATE transactions 
-		SET status = 'expired', updated_at = NOW()
+		SET status = 'failed', updated_at = NOW()
 		WHERE id = $1
 	`, reservationID)
 	if err != nil {
@@ -296,7 +296,7 @@ func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID
 			user_id, app_id, reservation_id, type, amount,
 			balance_before, balance_after, reserved_before, reserved_after,
 			description, status
-		) VALUES ($1, $2, $3, 'cancel', $4, $5, $5, $6, $7, 'auto-cancelled: reservation expired', 'completed')
+		) VALUES ($1, $2, $3, 'cancel', $4, $5, $5, $6, $7, 'auto-cancelled: reservation expired', 'success')
 		RETURNING id, user_id, app_id, type, amount,
 			balance_before, balance_after, reserved_before, reserved_after,
 			description, idempotency_key, expires_at, status, created_at
@@ -333,12 +333,12 @@ func (r *Repository) CancelExpiredReservation(ctx context.Context, reservationID
 }
 
 // GetExpiredReservations возвращает список ID истёкших резервирований
-// status='reserved', expires_at < NOW(), type='reserve'
+// status='pending', expires_at < NOW(), type='reserve'
 func (r *Repository) GetExpiredReservations(ctx context.Context, limit int) ([]string, error) {
 	rows, err := r.db.QueryContext(ctx, `
 		SELECT id FROM transactions
 		WHERE type = 'reserve' 
-			AND status = 'reserved' 
+			AND status = 'pending' 
 			AND expires_at < NOW()
 		ORDER BY expires_at ASC
 		LIMIT $1
