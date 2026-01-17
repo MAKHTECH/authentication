@@ -15,6 +15,8 @@ import (
 
 type TransactionsManagement interface {
 	Reserve(ctx context.Context, userID int64, appID int32, amount int64, idempotentKey string, description string, ttl time.Duration) (*models.Transaction, error)
+	Commit(ctx context.Context, reservationID string, commitIdempotencyKey string) (*models.Transaction, error)
+	Cancel(ctx context.Context, reservationID string, cancelIdempotencyKey string) (*models.Transaction, error)
 }
 
 type Transactions struct {
@@ -25,10 +27,14 @@ type Transactions struct {
 }
 
 var (
-	InternalError      = errors.New("internal error")
-	AlreadyInProgress  = errors.New("transaction already in progress")
-	InsufficientFunds  = errors.New("insufficient funds")
-	ReservationExpired = errors.New("reservation expired")
+	InternalError          = errors.New("internal error")
+	AlreadyInProgress      = errors.New("transaction already in progress")
+	InsufficientFunds      = errors.New("insufficient funds")
+	ReservationExpired     = errors.New("reservation expired")
+	ReservationNotFound    = errors.New("reservation not found")
+	AlreadyCommitted       = errors.New("reservation already committed")
+	AlreadyCancelled       = errors.New("reservation already cancelled")
+	InvalidTransactionType = errors.New("invalid transaction type")
 )
 
 func New(
@@ -158,11 +164,8 @@ func (t *Transactions) Reserve(
 		return nil, ReservationExpired
 	}
 
-	// 5. Успех - обновляем Redis
-	if err := t.transactionRepository.SetIdempotentKeyStatus(ctx, idempotentKey, ssov1.TransactionStatus_TRANSACTION_SUCCESS); err != nil {
-		log.Error("failed to update redis status to success", sl.Err(err))
-		// Не критично - транзакция в БД уже создана
-	}
+	// 5. Резервирование успешно создано, статус остаётся PENDING
+	// SUCCESS будет установлен только после commit, FAILED - после cancel или истечения срока
 
 	log.Info("reserve successful",
 		slog.String("transaction_id", transaction.ID),
@@ -194,4 +197,218 @@ func (t *Transactions) setFailed(ctx context.Context, idempotentKey string, log 
 	if err := t.transactionRepository.SetIdempotentKeyStatus(ctx, idempotentKey, ssov1.TransactionStatus_TRANSACTION_FAILED); err != nil {
 		log.Error("failed to set redis status to failed", sl.Err(err))
 	}
+}
+
+// Commit подтверждает резервирование и списывает средства
+//
+// Алгоритм:
+// 1. Проверка Redis (commit-idempotency):
+//   - success → вернуть сохранённый response
+//   - processing → вернуть AlreadyInProgress
+//   - failed → delete + retry
+//   - not found → идём дальше
+//
+// 2. Сохраняем в Redis со статусом processing
+// 3. Выполняем commit в одной DB-транзакции
+// 4. При успехе: Redis → success
+// 5. При ошибке: Redis → failed
+func (t *Transactions) Commit(
+	ctx context.Context,
+	reservationID string,
+	commitIdempotencyKey string,
+) (*models.Transaction, error) {
+	const op = "transactions.Commit"
+
+	log := t.log.With(
+		slog.String("op", op),
+		slog.String("reservation_id", reservationID),
+		slog.String("commit_key", commitIdempotencyKey),
+	)
+
+	// 1. Проверка Redis
+	existing, err := t.transactionRepository.GetIdempotentKey(ctx, commitIdempotencyKey)
+	if err != nil {
+		log.Error("failed to check idempotent key in redis", sl.Err(err))
+		return nil, InternalError
+	}
+
+	if existing != nil {
+		switch existing.Status {
+		case ssov1.TransactionStatus_TRANSACTION_SUCCESS:
+			// Уже успешно выполнено - возвращаем из БД
+			log.Info("found successful commit in redis, returning existing")
+			return t.dbRepository.GetTransactionByIdempotencyKey(ctx, commitIdempotencyKey)
+
+		case ssov1.TransactionStatus_TRANSACTION_PENDING:
+			// В процессе выполнения
+			log.Info("commit already in progress")
+			return nil, AlreadyInProgress
+
+		case ssov1.TransactionStatus_TRANSACTION_FAILED:
+			// Ранее failed - можно попробовать снова
+			log.Info("previous commit attempt failed, retrying")
+			_ = t.transactionRepository.DeleteIdempotentKey(ctx, commitIdempotencyKey)
+		}
+	}
+
+	// 2. Сохраняем в Redis со статусом processing
+	redisTransaction := &models.RedisTransaction{
+		IdempotentKey: commitIdempotencyKey,
+		Status:        ssov1.TransactionStatus_TRANSACTION_PENDING,
+		OperationType: ssov1.TransactionType_TRANSACTION_TYPE_COMMIT,
+		CreatedAt:     time.Now(),
+	}
+
+	if err := t.transactionRepository.SaveIdempotentKey(ctx, redisTransaction); err != nil {
+		log.Error("failed to save commit idempotent key to redis", sl.Err(err))
+		return nil, InternalError
+	}
+
+	// 3. Выполняем commit в БД
+	transaction, err := t.dbRepository.Commit(ctx, reservationID, commitIdempotencyKey)
+
+	if err != nil {
+		// Обработка ошибок
+		if errors.Is(err, repository.ErrReservationNotFound) {
+			log.Warn("reservation not found")
+			t.setFailed(ctx, commitIdempotencyKey, log)
+			return nil, ReservationNotFound
+		}
+
+		if errors.Is(err, repository.ErrReservationExpired) {
+			log.Warn("reservation expired or closed")
+			t.setFailed(ctx, commitIdempotencyKey, log)
+			return nil, ReservationExpired
+		}
+
+		if errors.Is(err, repository.ErrInvalidTransactionType) {
+			log.Warn("invalid transaction type")
+			t.setFailed(ctx, commitIdempotencyKey, log)
+			return nil, InvalidTransactionType
+		}
+
+		log.Error("failed to commit in db", sl.Err(err))
+		t.setFailed(ctx, commitIdempotencyKey, log)
+		return nil, InternalError
+	}
+
+	// 4. Commit успешен
+	if err := t.transactionRepository.SetIdempotentKeyStatus(ctx, commitIdempotencyKey, ssov1.TransactionStatus_TRANSACTION_SUCCESS); err != nil {
+		log.Error("failed to set redis status to success", sl.Err(err))
+		// Не возвращаем ошибку, commit уже выполнен
+	}
+
+	log.Info("commit successful",
+		slog.String("commit_id", transaction.ID),
+		slog.Int64("amount", transaction.Amount),
+	)
+
+	return transaction, nil
+}
+
+// Cancel отменяет резервирование и возвращает средства
+//
+// Алгоритм:
+// 1. Проверка Redis (cancel-idempotency):
+//   - success → вернуть сохранённый response
+//   - processing → вернуть AlreadyInProgress
+//   - failed → delete + retry
+//   - not found → идём дальше
+//
+// 2. Сохраняем в Redis со статусом processing
+// 3. Выполняем cancel в одной DB-транзакции
+// 4. При успехе: Redis → success
+// 5. При ошибке: Redis → failed
+func (t *Transactions) Cancel(
+	ctx context.Context,
+	reservationID string,
+	cancelIdempotencyKey string,
+) (*models.Transaction, error) {
+	const op = "transactions.Cancel"
+
+	log := t.log.With(
+		slog.String("op", op),
+		slog.String("reservation_id", reservationID),
+		slog.String("cancel_key", cancelIdempotencyKey),
+	)
+
+	// 1. Проверка Redis
+	existing, err := t.transactionRepository.GetIdempotentKey(ctx, cancelIdempotencyKey)
+	if err != nil {
+		log.Error("failed to check idempotent key in redis", sl.Err(err))
+		return nil, InternalError
+	}
+
+	if existing != nil {
+		switch existing.Status {
+		case ssov1.TransactionStatus_TRANSACTION_SUCCESS:
+			// Уже успешно выполнено - возвращаем из БД
+			log.Info("found successful cancel in redis, returning existing")
+			return t.dbRepository.GetTransactionByIdempotencyKey(ctx, cancelIdempotencyKey)
+
+		case ssov1.TransactionStatus_TRANSACTION_PENDING:
+			// В процессе выполнения
+			log.Info("cancel already in progress")
+			return nil, AlreadyInProgress
+
+		case ssov1.TransactionStatus_TRANSACTION_FAILED:
+			// Ранее failed - можно попробовать снова
+			log.Info("previous cancel attempt failed, retrying")
+			_ = t.transactionRepository.DeleteIdempotentKey(ctx, cancelIdempotencyKey)
+		}
+	}
+
+	// 2. Сохраняем в Redis со статусом processing
+	redisTransaction := &models.RedisTransaction{
+		IdempotentKey: cancelIdempotencyKey,
+		Status:        ssov1.TransactionStatus_TRANSACTION_PENDING,
+		OperationType: ssov1.TransactionType_TRANSACTION_TYPE_CANCEL,
+		CreatedAt:     time.Now(),
+	}
+
+	if err := t.transactionRepository.SaveIdempotentKey(ctx, redisTransaction); err != nil {
+		log.Error("failed to save cancel idempotent key to redis", sl.Err(err))
+		return nil, InternalError
+	}
+
+	// 3. Выполняем cancel в БД
+	transaction, err := t.dbRepository.Cancel(ctx, reservationID, cancelIdempotencyKey)
+
+	if err != nil {
+		// Обработка ошибок
+		if errors.Is(err, repository.ErrReservationNotFound) {
+			log.Warn("reservation not found")
+			t.setFailed(ctx, cancelIdempotencyKey, log)
+			return nil, ReservationNotFound
+		}
+
+		if errors.Is(err, repository.ErrAlreadyCommitted) {
+			log.Warn("reservation already committed")
+			t.setFailed(ctx, cancelIdempotencyKey, log)
+			return nil, AlreadyCommitted
+		}
+
+		if errors.Is(err, repository.ErrInvalidTransactionType) {
+			log.Warn("invalid transaction type")
+			t.setFailed(ctx, cancelIdempotencyKey, log)
+			return nil, InvalidTransactionType
+		}
+
+		log.Error("failed to cancel in db", sl.Err(err))
+		t.setFailed(ctx, cancelIdempotencyKey, log)
+		return nil, InternalError
+	}
+
+	// 4. Cancel успешен
+	if err := t.transactionRepository.SetIdempotentKeyStatus(ctx, cancelIdempotencyKey, ssov1.TransactionStatus_TRANSACTION_SUCCESS); err != nil {
+		log.Error("failed to set redis status to success", sl.Err(err))
+		// Не возвращаем ошибку, cancel уже выполнен
+	}
+
+	log.Info("cancel successful",
+		slog.String("cancel_id", transaction.ID),
+		slog.Int64("amount", transaction.Amount),
+	)
+
+	return transaction, nil
 }
