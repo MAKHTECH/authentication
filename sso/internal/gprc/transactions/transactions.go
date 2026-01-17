@@ -100,11 +100,95 @@ func (s *ServerAPI) GetTransactions(ctx context.Context, req *ssov1.GetTransacti
 // ----- For Service Role -----
 
 func (s *ServerAPI) CommitReserve(ctx context.Context, req *ssov1.CommitReserveRequest) (*ssov1.CommitReserveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CommitReserve not implemented")
+	reservationID := req.GetReservationId()
+	if reservationID == "" {
+		return nil, status.Error(codes.InvalidArgument, "reservation_id is required")
+	}
+
+	// Генерируем idempotency key для commit на основе reservation_id и app_id
+	commitIdempotencyKey := "commit:" + reservationID
+
+	transaction, err := s.TransactionsManagement.Commit(ctx, reservationID, commitIdempotencyKey)
+	if err != nil {
+		switch {
+		case errors.Is(err, transactions.ReservationNotFound):
+			return &ssov1.CommitReserveResponse{
+				Success:      false,
+				ErrorMessage: "reservation not found",
+			}, nil
+		case errors.Is(err, transactions.AlreadyInProgress):
+			return &ssov1.CommitReserveResponse{
+				Success:      false,
+				ErrorMessage: "commit already in progress",
+			}, nil
+		case errors.Is(err, transactions.ReservationExpired):
+			return &ssov1.CommitReserveResponse{
+				Success:      false,
+				ErrorMessage: "reservation expired or closed",
+			}, nil
+		case errors.Is(err, transactions.InvalidTransactionType):
+			return &ssov1.CommitReserveResponse{
+				Success:      false,
+				ErrorMessage: "invalid transaction type",
+			}, nil
+		default:
+			return nil, status.Error(codes.Internal, "internal error")
+		}
+	}
+
+	return &ssov1.CommitReserveResponse{
+		Success:         true,
+		CommittedAmount: transaction.Amount,
+		NewBalance:      transaction.BalanceAfter,
+	}, nil
 }
 
 func (s *ServerAPI) CancelReserve(ctx context.Context, req *ssov1.CancelReserveRequest) (*ssov1.CancelReserveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CancelReserve not implemented")
+	reservationID := req.GetReservationId()
+	if reservationID == "" {
+		return nil, status.Error(codes.InvalidArgument, "reservation_id is required")
+	}
+
+	// Генерируем idempotency key для cancel на основе reservation_id
+	cancelIdempotencyKey := "cancel:" + reservationID
+
+	transaction, err := s.TransactionsManagement.Cancel(ctx, reservationID, cancelIdempotencyKey)
+	if err != nil {
+		switch {
+		case errors.Is(err, transactions.ReservationNotFound):
+			return &ssov1.CancelReserveResponse{
+				Success:      false,
+				ErrorMessage: "reservation not found",
+			}, nil
+		case errors.Is(err, transactions.AlreadyInProgress):
+			return &ssov1.CancelReserveResponse{
+				Success:      false,
+				ErrorMessage: "cancel already in progress",
+			}, nil
+		case errors.Is(err, transactions.AlreadyCommitted):
+			return &ssov1.CancelReserveResponse{
+				Success:      false,
+				ErrorMessage: "reservation already committed",
+			}, nil
+		case errors.Is(err, transactions.InvalidTransactionType):
+			return &ssov1.CancelReserveResponse{
+				Success:      false,
+				ErrorMessage: "invalid transaction type",
+			}, nil
+		default:
+			return nil, status.Error(codes.Internal, "internal error")
+		}
+	}
+
+	// Для cancel: available_balance = balance - reserve_balance
+	// После cancel reserve_balance уменьшается, значит available увеличивается
+	newAvailableBalance := transaction.BalanceAfter - transaction.ReservedAfter
+
+	return &ssov1.CancelReserveResponse{
+		Success:        true,
+		ReleasedAmount: transaction.Amount,
+		NewBalance:     newAvailableBalance,
+	}, nil
 }
 
 // TODO: когда добавим платежку

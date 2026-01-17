@@ -97,6 +97,17 @@ type TransactionRepository interface {
 	// GetTransactionByIdempotencyKey получает транзакцию по idempotency_key
 	GetTransactionByIdempotencyKey(ctx context.Context, idempotencyKey string) (*models.Transaction, error)
 
+	// GetReservationByID получает резервирование по ID с блокировкой FOR UPDATE
+	GetReservationByID(ctx context.Context, reservationID string) (*models.Transaction, error)
+
+	// Commit подтверждает резервирование и списывает средства
+	// Возвращает транзакцию commit или ошибку
+	Commit(ctx context.Context, reservationID string, commitIdempotencyKey string) (*models.Transaction, error)
+
+	// Cancel отменяет резервирование и возвращает средства
+	// Возвращает транзакцию cancel или ошибку
+	Cancel(ctx context.Context, reservationID string, cancelIdempotencyKey string) (*models.Transaction, error)
+
 	// CancelExpiredReservation отменяет истёкшее резервирование и возвращает средства
 	// Возвращает транзакцию отмены или ошибку
 	CancelExpiredReservation(ctx context.Context, reservationID string) (*models.Transaction, error)
