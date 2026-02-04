@@ -91,3 +91,10 @@ func GetRootDirectory(file string) (string, error) {
 
 	return projectDirPath, nil
 }
+
+func StringOrEmpty(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}

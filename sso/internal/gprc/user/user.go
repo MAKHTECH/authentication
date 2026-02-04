@@ -24,6 +24,19 @@ func Register(gRPC *grpc.Server, UserManagement user.UserManagement) {
 	ssov1.RegisterUserServer(gRPC, &ServerAPI{UserManagement: UserManagement})
 }
 
+func (s *ServerAPI) ValidateJWT(ctx context.Context, req *ssov1.ValidateJWTRequest) (*ssov1.ValidateJWTResponse, error) {
+	userData := ctx.Value("data").(*models.AccessTokenData)
+	return &ssov1.ValidateJWTResponse{
+		Username: userData.Username,
+		Email:    utils.StringOrEmpty(userData.Email),
+		PhotoUrl: userData.PhotoURL,
+		Role:     userData.Role,
+		UserId:   userData.UserID,
+		AppId:    userData.AppID,
+		Balance:  userData.Balance,
+	}, nil
+}
+
 func (s *ServerAPI) ChangeAvatar(ctx context.Context, req *ssov1.ChangeAvatarRequest) (*ssov1.ChangeAvatarResponse, error) {
 	userData := ctx.Value("data").(*models.AccessTokenData)
 

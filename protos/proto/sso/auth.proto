@@ -50,6 +50,7 @@ message RefreshTokenResponse {
     TokenPair tokens = 1;
 }
 
+
 message LogoutRequest {
   string access_token = 1;
 }

@@ -58,3 +58,16 @@ message ChangeEmailRequest {
 message ChangeEmailResponse {
   string email = 1;
 }
+
+message ValidateJWTRequest {
+}
+
+message ValidateJWTResponse {
+  string username = 1;
+  string email = 2; // может быть nil
+  string photo_url = 3; // может быть nil
+  Role role = 4;
+  int64 user_id = 5;
+  int32 app_id = 6;
+  int64 balance = 7;
+}

@@ -569,6 +569,134 @@ func (x *ChangeEmailResponse) GetEmail() string {
 	return ""
 }
 
+type ValidateJWTRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateJWTRequest) Reset() {
+	*x = ValidateJWTRequest{}
+	mi := &file_sso_user_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateJWTRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateJWTRequest) ProtoMessage() {}
+
+func (x *ValidateJWTRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateJWTRequest.ProtoReflect.Descriptor instead.
+func (*ValidateJWTRequest) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{10}
+}
+
+type ValidateJWTResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`                       // может быть nil
+	PhotoUrl      string                 `protobuf:"bytes,3,opt,name=photo_url,json=photoUrl,proto3" json:"photo_url,omitempty"` // может быть nil
+	Role          Role                   `protobuf:"varint,4,opt,name=role,proto3,enum=auth.Role" json:"role,omitempty"`
+	UserId        int64                  `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	AppId         int32                  `protobuf:"varint,6,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Balance       int64                  `protobuf:"varint,7,opt,name=balance,proto3" json:"balance,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateJWTResponse) Reset() {
+	*x = ValidateJWTResponse{}
+	mi := &file_sso_user_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateJWTResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateJWTResponse) ProtoMessage() {}
+
+func (x *ValidateJWTResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_user_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateJWTResponse.ProtoReflect.Descriptor instead.
+func (*ValidateJWTResponse) Descriptor() ([]byte, []int) {
+	return file_sso_user_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ValidateJWTResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *ValidateJWTResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *ValidateJWTResponse) GetPhotoUrl() string {
+	if x != nil {
+		return x.PhotoUrl
+	}
+	return ""
+}
+
+func (x *ValidateJWTResponse) GetRole() Role {
+	if x != nil {
+		return x.Role
+	}
+	return Role_USER
+}
+
+func (x *ValidateJWTResponse) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *ValidateJWTResponse) GetAppId() int32 {
+	if x != nil {
+		return x.AppId
+	}
+	return 0
+}
+
+func (x *ValidateJWTResponse) GetBalance() int64 {
+	if x != nil {
+		return x.Balance
+	}
+	return 0
+}
+
 var File_sso_user_proto protoreflect.FileDescriptor
 
 const file_sso_user_proto_rawDesc = "" +
@@ -601,7 +729,17 @@ const file_sso_user_proto_rawDesc = "" +
 	"\x06app_id\x18\x01 \x01(\x05R\x05appId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\"+\n" +
 	"\x13ChangeEmailResponse\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email*7\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"\x14\n" +
+	"\x12ValidateJWTRequest\"\xce\x01\n" +
+	"\x13ValidateJWTResponse\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1b\n" +
+	"\tphoto_url\x18\x03 \x01(\tR\bphotoUrl\x12\x1e\n" +
+	"\x04role\x18\x04 \x01(\x0e2\n" +
+	".auth.RoleR\x04role\x12\x17\n" +
+	"\auser_id\x18\x05 \x01(\x03R\x06userId\x12\x15\n" +
+	"\x06app_id\x18\x06 \x01(\x05R\x05appId\x12\x18\n" +
+	"\abalance\x18\a \x01(\x03R\abalance*7\n" +
 	"\x04Role\x12\b\n" +
 	"\x04USER\x10\x00\x12\r\n" +
 	"\tMODERATOR\x10\x01\x12\t\n" +
@@ -621,7 +759,7 @@ func file_sso_user_proto_rawDescGZIP() []byte {
 }
 
 var file_sso_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_sso_user_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_sso_user_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_sso_user_proto_goTypes = []any{
 	(Role)(0),                      // 0: auth.Role
 	(*AssignRoleRequest)(nil),      // 1: auth.AssignRoleRequest
@@ -634,14 +772,17 @@ var file_sso_user_proto_goTypes = []any{
 	(*ChangePasswordResponse)(nil), // 8: auth.ChangePasswordResponse
 	(*ChangeEmailRequest)(nil),     // 9: auth.ChangeEmailRequest
 	(*ChangeEmailResponse)(nil),    // 10: auth.ChangeEmailResponse
+	(*ValidateJWTRequest)(nil),     // 11: auth.ValidateJWTRequest
+	(*ValidateJWTResponse)(nil),    // 12: auth.ValidateJWTResponse
 }
 var file_sso_user_proto_depIdxs = []int32{
 	0, // 0: auth.AssignRoleRequest.role:type_name -> auth.Role
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 1: auth.ValidateJWTResponse.role:type_name -> auth.Role
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_sso_user_proto_init() }
@@ -655,7 +796,7 @@ func file_sso_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sso_user_proto_rawDesc), len(file_sso_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

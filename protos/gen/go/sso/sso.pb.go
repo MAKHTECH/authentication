@@ -31,10 +31,11 @@ const file_sso_sso_proto_rawDesc = "" +
 	"\fRefreshToken\x12\x19.auth.RefreshTokenRequest\x1a\x1a.auth.RefreshTokenResponse\x12?\n" +
 	"\n" +
 	"GetDevices\x12\x17.auth.GetDevicesRequest\x1a\x18.auth.GetDevicesResponse\x123\n" +
-	"\x06Logout\x12\x13.auth.LogoutRequest\x1a\x14.auth.LogoutResponse2\xec\x02\n" +
+	"\x06Logout\x12\x13.auth.LogoutRequest\x1a\x14.auth.LogoutResponse2\xb0\x03\n" +
 	"\x04User\x12?\n" +
 	"\n" +
-	"AssignRole\x12\x17.auth.AssignRoleRequest\x1a\x18.auth.AssignRoleResponse\x12E\n" +
+	"AssignRole\x12\x17.auth.AssignRoleRequest\x1a\x18.auth.AssignRoleResponse\x12B\n" +
+	"\vValidateJWT\x12\x18.auth.ValidateJWTRequest\x1a\x19.auth.ValidateJWTResponse\x12E\n" +
 	"\fChangeAvatar\x12\x19.auth.ChangeAvatarRequest\x1a\x1a.auth.ChangeAvatarResponse\x12K\n" +
 	"\x0eChangeUsername\x12\x1b.auth.ChangeUsernameRequest\x1a\x1c.auth.ChangeUsernameResponse\x12K\n" +
 	"\x0eChangePassword\x12\x1b.auth.ChangePasswordRequest\x1a\x1c.auth.ChangePasswordResponse\x12B\n" +
@@ -55,32 +56,34 @@ var file_sso_sso_proto_goTypes = []any{
 	(*GetDevicesRequest)(nil),       // 3: auth.GetDevicesRequest
 	(*LogoutRequest)(nil),           // 4: auth.LogoutRequest
 	(*AssignRoleRequest)(nil),       // 5: auth.AssignRoleRequest
-	(*ChangeAvatarRequest)(nil),     // 6: auth.ChangeAvatarRequest
-	(*ChangeUsernameRequest)(nil),   // 7: auth.ChangeUsernameRequest
-	(*ChangePasswordRequest)(nil),   // 8: auth.ChangePasswordRequest
-	(*ChangeEmailRequest)(nil),      // 9: auth.ChangeEmailRequest
-	(*ReserveRequest)(nil),          // 10: auth.ReserveRequest
-	(*CommitReserveRequest)(nil),    // 11: auth.CommitReserveRequest
-	(*CancelReserveRequest)(nil),    // 12: auth.CancelReserveRequest
-	(*GetBalanceRequest)(nil),       // 13: auth.GetBalanceRequest
-	(*DepositRequest)(nil),          // 14: auth.DepositRequest
-	(*GetTransactionsRequest)(nil),  // 15: auth.GetTransactionsRequest
-	(*RegisterResponse)(nil),        // 16: auth.RegisterResponse
-	(*LoginResponse)(nil),           // 17: auth.LoginResponse
-	(*RefreshTokenResponse)(nil),    // 18: auth.RefreshTokenResponse
-	(*GetDevicesResponse)(nil),      // 19: auth.GetDevicesResponse
-	(*LogoutResponse)(nil),          // 20: auth.LogoutResponse
-	(*AssignRoleResponse)(nil),      // 21: auth.AssignRoleResponse
-	(*ChangeAvatarResponse)(nil),    // 22: auth.ChangeAvatarResponse
-	(*ChangeUsernameResponse)(nil),  // 23: auth.ChangeUsernameResponse
-	(*ChangePasswordResponse)(nil),  // 24: auth.ChangePasswordResponse
-	(*ChangeEmailResponse)(nil),     // 25: auth.ChangeEmailResponse
-	(*ReserveResponse)(nil),         // 26: auth.ReserveResponse
-	(*CommitReserveResponse)(nil),   // 27: auth.CommitReserveResponse
-	(*CancelReserveResponse)(nil),   // 28: auth.CancelReserveResponse
-	(*GetBalanceResponse)(nil),      // 29: auth.GetBalanceResponse
-	(*DepositResponse)(nil),         // 30: auth.DepositResponse
-	(*GetTransactionsResponse)(nil), // 31: auth.GetTransactionsResponse
+	(*ValidateJWTRequest)(nil),      // 6: auth.ValidateJWTRequest
+	(*ChangeAvatarRequest)(nil),     // 7: auth.ChangeAvatarRequest
+	(*ChangeUsernameRequest)(nil),   // 8: auth.ChangeUsernameRequest
+	(*ChangePasswordRequest)(nil),   // 9: auth.ChangePasswordRequest
+	(*ChangeEmailRequest)(nil),      // 10: auth.ChangeEmailRequest
+	(*ReserveRequest)(nil),          // 11: auth.ReserveRequest
+	(*CommitReserveRequest)(nil),    // 12: auth.CommitReserveRequest
+	(*CancelReserveRequest)(nil),    // 13: auth.CancelReserveRequest
+	(*GetBalanceRequest)(nil),       // 14: auth.GetBalanceRequest
+	(*DepositRequest)(nil),          // 15: auth.DepositRequest
+	(*GetTransactionsRequest)(nil),  // 16: auth.GetTransactionsRequest
+	(*RegisterResponse)(nil),        // 17: auth.RegisterResponse
+	(*LoginResponse)(nil),           // 18: auth.LoginResponse
+	(*RefreshTokenResponse)(nil),    // 19: auth.RefreshTokenResponse
+	(*GetDevicesResponse)(nil),      // 20: auth.GetDevicesResponse
+	(*LogoutResponse)(nil),          // 21: auth.LogoutResponse
+	(*AssignRoleResponse)(nil),      // 22: auth.AssignRoleResponse
+	(*ValidateJWTResponse)(nil),     // 23: auth.ValidateJWTResponse
+	(*ChangeAvatarResponse)(nil),    // 24: auth.ChangeAvatarResponse
+	(*ChangeUsernameResponse)(nil),  // 25: auth.ChangeUsernameResponse
+	(*ChangePasswordResponse)(nil),  // 26: auth.ChangePasswordResponse
+	(*ChangeEmailResponse)(nil),     // 27: auth.ChangeEmailResponse
+	(*ReserveResponse)(nil),         // 28: auth.ReserveResponse
+	(*CommitReserveResponse)(nil),   // 29: auth.CommitReserveResponse
+	(*CancelReserveResponse)(nil),   // 30: auth.CancelReserveResponse
+	(*GetBalanceResponse)(nil),      // 31: auth.GetBalanceResponse
+	(*DepositResponse)(nil),         // 32: auth.DepositResponse
+	(*GetTransactionsResponse)(nil), // 33: auth.GetTransactionsResponse
 }
 var file_sso_sso_proto_depIdxs = []int32{
 	0,  // 0: auth.Auth.Register:input_type -> auth.RegisterRequest
@@ -89,34 +92,36 @@ var file_sso_sso_proto_depIdxs = []int32{
 	3,  // 3: auth.Auth.GetDevices:input_type -> auth.GetDevicesRequest
 	4,  // 4: auth.Auth.Logout:input_type -> auth.LogoutRequest
 	5,  // 5: auth.User.AssignRole:input_type -> auth.AssignRoleRequest
-	6,  // 6: auth.User.ChangeAvatar:input_type -> auth.ChangeAvatarRequest
-	7,  // 7: auth.User.ChangeUsername:input_type -> auth.ChangeUsernameRequest
-	8,  // 8: auth.User.ChangePassword:input_type -> auth.ChangePasswordRequest
-	9,  // 9: auth.User.ChangeEmail:input_type -> auth.ChangeEmailRequest
-	10, // 10: auth.Transactions.Reserve:input_type -> auth.ReserveRequest
-	11, // 11: auth.Transactions.CommitReserve:input_type -> auth.CommitReserveRequest
-	12, // 12: auth.Transactions.CancelReserve:input_type -> auth.CancelReserveRequest
-	13, // 13: auth.Transactions.GetBalance:input_type -> auth.GetBalanceRequest
-	14, // 14: auth.Transactions.Deposit:input_type -> auth.DepositRequest
-	15, // 15: auth.Transactions.GetTransactions:input_type -> auth.GetTransactionsRequest
-	16, // 16: auth.Auth.Register:output_type -> auth.RegisterResponse
-	17, // 17: auth.Auth.Login:output_type -> auth.LoginResponse
-	18, // 18: auth.Auth.RefreshToken:output_type -> auth.RefreshTokenResponse
-	19, // 19: auth.Auth.GetDevices:output_type -> auth.GetDevicesResponse
-	20, // 20: auth.Auth.Logout:output_type -> auth.LogoutResponse
-	21, // 21: auth.User.AssignRole:output_type -> auth.AssignRoleResponse
-	22, // 22: auth.User.ChangeAvatar:output_type -> auth.ChangeAvatarResponse
-	23, // 23: auth.User.ChangeUsername:output_type -> auth.ChangeUsernameResponse
-	24, // 24: auth.User.ChangePassword:output_type -> auth.ChangePasswordResponse
-	25, // 25: auth.User.ChangeEmail:output_type -> auth.ChangeEmailResponse
-	26, // 26: auth.Transactions.Reserve:output_type -> auth.ReserveResponse
-	27, // 27: auth.Transactions.CommitReserve:output_type -> auth.CommitReserveResponse
-	28, // 28: auth.Transactions.CancelReserve:output_type -> auth.CancelReserveResponse
-	29, // 29: auth.Transactions.GetBalance:output_type -> auth.GetBalanceResponse
-	30, // 30: auth.Transactions.Deposit:output_type -> auth.DepositResponse
-	31, // 31: auth.Transactions.GetTransactions:output_type -> auth.GetTransactionsResponse
-	16, // [16:32] is the sub-list for method output_type
-	0,  // [0:16] is the sub-list for method input_type
+	6,  // 6: auth.User.ValidateJWT:input_type -> auth.ValidateJWTRequest
+	7,  // 7: auth.User.ChangeAvatar:input_type -> auth.ChangeAvatarRequest
+	8,  // 8: auth.User.ChangeUsername:input_type -> auth.ChangeUsernameRequest
+	9,  // 9: auth.User.ChangePassword:input_type -> auth.ChangePasswordRequest
+	10, // 10: auth.User.ChangeEmail:input_type -> auth.ChangeEmailRequest
+	11, // 11: auth.Transactions.Reserve:input_type -> auth.ReserveRequest
+	12, // 12: auth.Transactions.CommitReserve:input_type -> auth.CommitReserveRequest
+	13, // 13: auth.Transactions.CancelReserve:input_type -> auth.CancelReserveRequest
+	14, // 14: auth.Transactions.GetBalance:input_type -> auth.GetBalanceRequest
+	15, // 15: auth.Transactions.Deposit:input_type -> auth.DepositRequest
+	16, // 16: auth.Transactions.GetTransactions:input_type -> auth.GetTransactionsRequest
+	17, // 17: auth.Auth.Register:output_type -> auth.RegisterResponse
+	18, // 18: auth.Auth.Login:output_type -> auth.LoginResponse
+	19, // 19: auth.Auth.RefreshToken:output_type -> auth.RefreshTokenResponse
+	20, // 20: auth.Auth.GetDevices:output_type -> auth.GetDevicesResponse
+	21, // 21: auth.Auth.Logout:output_type -> auth.LogoutResponse
+	22, // 22: auth.User.AssignRole:output_type -> auth.AssignRoleResponse
+	23, // 23: auth.User.ValidateJWT:output_type -> auth.ValidateJWTResponse
+	24, // 24: auth.User.ChangeAvatar:output_type -> auth.ChangeAvatarResponse
+	25, // 25: auth.User.ChangeUsername:output_type -> auth.ChangeUsernameResponse
+	26, // 26: auth.User.ChangePassword:output_type -> auth.ChangePasswordResponse
+	27, // 27: auth.User.ChangeEmail:output_type -> auth.ChangeEmailResponse
+	28, // 28: auth.Transactions.Reserve:output_type -> auth.ReserveResponse
+	29, // 29: auth.Transactions.CommitReserve:output_type -> auth.CommitReserveResponse
+	30, // 30: auth.Transactions.CancelReserve:output_type -> auth.CancelReserveResponse
+	31, // 31: auth.Transactions.GetBalance:output_type -> auth.GetBalanceResponse
+	32, // 32: auth.Transactions.Deposit:output_type -> auth.DepositResponse
+	33, // 33: auth.Transactions.GetTransactions:output_type -> auth.GetTransactionsResponse
+	17, // [17:34] is the sub-list for method output_type
+	0,  // [0:17] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

@@ -17,7 +17,6 @@ service Auth {
   // Вход в систему
   rpc Login (LoginRequest) returns (LoginResponse);
 
-
   // Обновление токена (для долгосрочных сессий)
   rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
 
@@ -37,6 +36,7 @@ service User {
   // rpc RevokeRole (RevokeRoleRequest) returns (RevokeRoleResponse);
 
   // --- FOR USER ---
+  rpc ValidateJWT (ValidateJWTRequest) returns (ValidateJWTResponse);
   rpc ChangeAvatar (ChangeAvatarRequest) returns (ChangeAvatarResponse);
   rpc ChangeUsername (ChangeUsernameRequest) returns (ChangeUsernameResponse);
   rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
